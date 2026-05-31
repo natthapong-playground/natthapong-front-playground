@@ -12,6 +12,7 @@ ng new frontend-playground --routing --style=css
 docker compose down
 docker compose up -d
 
-
+<!-- Material UI -->
+ng add @angular/material
 
 
