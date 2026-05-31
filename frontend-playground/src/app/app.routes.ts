@@ -10,6 +10,9 @@ export const routes: Routes = [
         canActivate: [guestGuard],
         loadComponent: () => import('./features/auth/register/register').then(m => m.Register)
     }, {
+        path: 'profile',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/dashboard/profile/profile').then(m => m.Profile)
     },{
         path:'',
         pathMatch: 'full',
