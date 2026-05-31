@@ -1,0 +1,132 @@
+/* ─── Page shell  */
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.profile-shell {
+  min-height: 100dvh;
+  background: var(--mat-sys-surface-container-low);
+}
+
+/* ─── Top bar  */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand-icon { margin-right: 0.25rem; }
+.brand-text { font-weight: 500; }
+.spacer { flex: 1; }
+
+.topbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ─── Main content area  */
+.profile-main {
+  padding: 2rem 1rem;
+  display: grid;
+  place-items: start center;
+}
+
+/* ─── Loading / error state  */
+.state {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.95rem;
+}
+
+.state.error { color: var(--mat-sys-error); }
+
+/* ─── Profile card  */
+.profile-card {
+  width: 100%;
+  max-width: 640px;
+}
+
+.profile-avatar {
+  display: grid;
+  place-items: center;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+/* ─── Role chip  */
+mat-chip[data-role="Guest"]      { --mdc-chip-elevated-container-color: var(--mat-sys-surface-container); }
+mat-chip[data-role="Regular"]    { --mdc-chip-elevated-container-color: var(--mat-sys-secondary-container); }
+mat-chip[data-role="Admin"]      { --mdc-chip-elevated-container-color: var(--mat-sys-tertiary-container); }
+mat-chip[data-role="SuperAdmin"] { --mdc-chip-elevated-container-color: var(--mat-sys-error-container); }
+
+.role-description {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+/* ─── Details grid ──── */
+.profile-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem 1.5rem;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.detail { margin: 0; }
+
+.detail dt {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mat-sys-on-surface-variant);
+  margin-bottom: 0.35rem;
+}
+
+.detail dt mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.detail dd {
+  margin: 0;
+  color: var(--mat-sys-on-surface);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* ─── Status indicator  */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.status.active {
+  color: var(--mat-sys-primary);
+  font-weight: 500;
+}
+
+/* ─── Responsive  */
+@media (max-width: 520px) {
+  .profile-details {
+    grid-template-columns: 1fr;
+  }
+}
