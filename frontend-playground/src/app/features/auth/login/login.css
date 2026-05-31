@@ -1,4 +1,4 @@
-/* ─── Page shell ─────────────────────────────────────────────── */
+/* ─── Page shell  */
 :host {
   display: block;
   min-height: 100dvh;
@@ -12,7 +12,7 @@
   background: var(--mat-sys-surface-container-low);
 }
 
-/* ─── Card ───────────────────────────────────────────────────── */
+/* ─── Card  */
 .auth-card {
   width: 100%;
   max-width: 420px;
