@@ -14,15 +14,13 @@ import { AuthService } from '../../../core/services/auth.service';
 import { UserService } from '../../../core/services/user.service';
 import { Role, User } from '../../../core/models/user.model';
 
-// ─── Page state machine ──────────────────────────────────────────
-// Mutually-exclusive states the page can be in.
+
 type ViewState =
   | { kind: 'loading' }
   | { kind: 'error'; message: string }
   | { kind: 'loaded'; user: User };
 
-// ─── Role display config ─────────────────────────────────────────
-// Add a new role to `Role` and TypeScript will require an entry here.
+
 interface RoleDisplay {
   icon: string;
   description: string;
@@ -35,7 +33,6 @@ const ROLE_DISPLAY: Record<Role, RoleDisplay> = {
   SuperAdmin: { icon: 'shield',               description: 'Full system access' }
 };
 
-// ─── Server error messages ───────────────────────────────────────
 const SERVER_ERRORS: Record<number, string> = {
   0: 'Cannot reach the server. Please try again.',
   403: 'You do not have permission to view this profile.',
@@ -63,13 +60,8 @@ export class Profile implements OnInit {
   private auth = inject(AuthService);
   private router = inject(Router);
 
-  // The single source of truth for what the page is doing.
   protected readonly state = signal<ViewState>({ kind: 'loading' });
 
-  // ─── Narrowed accessors ──────────────────────────────────────
-  // Angular's template type checker doesn't narrow discriminated unions
-  // inside @switch/@case blocks. We narrow in TypeScript instead, and
-  // the template uses these typed views.
   protected readonly loadedUser = computed<User | null>(() => {
     const s = this.state();
     return s.kind === 'loaded' ? s.user : null;
@@ -80,7 +72,7 @@ export class Profile implements OnInit {
     return s.kind === 'error' ? s.message : null;
   });
 
-  // ─── Derived display values ──────────────────────────────────
+
   protected readonly initial = computed(() => {
     const user = this.loadedUser();
     return user ? user.email.charAt(0).toUpperCase() : '?';
@@ -91,11 +83,13 @@ export class Profile implements OnInit {
     return user ? ROLE_DISPLAY[user.role] : null;
   });
 
+  // Show admin-only navigation, when user is a SuperAdmin.
+  protected readonly isSuperAdmin = computed(() => this.auth.currentRole() === 'SuperAdmin');
+
   ngOnInit(): void {
     this.userService.getMyProfile().subscribe({
       next: (user) => this.state.set({ kind: 'loaded', user }),
       error: (err) => {
-        // 401 is handled globally by the interceptor (auto-logout); skip here.
         if (err.status === 401) return;
         const message =
           SERVER_ERRORS[err.status] ?? err.error?.detail ?? FALLBACK_ERROR;
@@ -106,5 +100,9 @@ export class Profile implements OnInit {
 
   onLogout(): void {
     this.auth.logout();
+  }
+
+  onViewAuditLogs(): void {
+    this.router.navigate(['/audit-logs']);
   }
 }

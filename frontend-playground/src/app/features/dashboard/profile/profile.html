@@ -3,6 +3,12 @@
     <mat-icon class="brand-icon">dashboard</mat-icon>
     <span class="brand-text">Playground</span>
     <span class="spacer"></span>
+    @if (isSuperAdmin()) {
+      <button mat-stroked-button (click)="onViewAuditLogs()">
+        <mat-icon>receipt_long</mat-icon>
+        <span>Audit Logs</span>
+      </button>
+    }
     <button mat-stroked-button (click)="onLogout()">
       <mat-icon>logout</mat-icon>
       <span>Sign out</span>
