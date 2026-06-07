@@ -5,15 +5,27 @@
 }
 
 .auth-shell {
+  position: relative;
   min-height: 100dvh;
   display: grid;
   place-items: center;
   padding: 2rem 1rem;
-  background: var(--mat-sys-surface-container-low);
+  background: var(--mat-sys-surface-container-low) url("/backgrounds/auth-bg.gif")
+    center / cover no-repeat fixed;
+}
+
+.auth-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  pointer-events: none;
 }
 
 /* ─── Card  */
 .auth-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 440px;
   padding: 1.5rem 0.5rem;

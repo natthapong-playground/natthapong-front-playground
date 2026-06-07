@@ -57,8 +57,14 @@ export class AuthService {
     }
 
     logout(): void {
+        const token = this._token();
         this.clearToken();
         this.router.navigate(['/login']);
+        if (token) {
+            const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+            this.http.post(`${environment.apiUrl}/logout`, null, { headers })
+                .subscribe({ next: () => { }, error: () => { } });
+        }
     }
 
     register(email: string, password: string, role: Role = 'Regular'): Observable<TokenResponse> {

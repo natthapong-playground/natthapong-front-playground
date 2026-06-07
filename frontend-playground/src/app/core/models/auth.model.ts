@@ -7,4 +7,5 @@ export interface JwtPayload {
   sub: string;
   role: string;
   exp: number;
+  jti?: string;
 }
