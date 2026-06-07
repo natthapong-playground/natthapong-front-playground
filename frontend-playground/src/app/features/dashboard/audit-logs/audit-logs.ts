@@ -24,7 +24,7 @@ type ViewState =
   | { kind: 'loaded'; logs: AuditLog[] };
 
 const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const;
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 150;
 
 const SERVER_ERRORS: Record<number, string> = {
   0: 'Cannot reach the server. Please try again.',
@@ -80,6 +80,20 @@ export class AuditLogs implements OnInit {
   });
 
   protected readonly hasMore = computed(() => this.logs().length === PAGE_SIZE);
+
+  // Counts for the rows currently shown (i.e. the active filtered search).
+  // Note: reflects the loaded page, not the whole dataset across pages.
+  protected readonly stats = computed(() => {
+    const rows = this.logs();
+    const counts = { total: rows.length, success: 0, redirect: 0, clientError: 0, serverError: 0 };
+    for (const row of rows) {
+      if (row.status_code >= 500) counts.serverError++;
+      else if (row.status_code >= 400) counts.clientError++;
+      else if (row.status_code >= 300) counts.redirect++;
+      else counts.success++;
+    }
+    return counts;
+  });
 
   ngOnInit(): void {
     this.load();

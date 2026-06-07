@@ -74,6 +74,29 @@
             <span>No audit logs match your filters.</span>
           </div>
         } @else {
+          <div class="stats-bar">
+            <div class="stat stat-total">
+              <span class="stat-value">{{ stats().total }}</span>
+              <span class="stat-label">Results</span>
+            </div>
+            <div class="stat stat-2xx">
+              <span class="stat-value">{{ stats().success }}</span>
+              <span class="stat-label">Success (2xx)</span>
+            </div>
+            <div class="stat stat-3xx">
+              <span class="stat-value">{{ stats().redirect }}</span>
+              <span class="stat-label">Redirect (3xx)</span>
+            </div>
+            <div class="stat stat-4xx">
+              <span class="stat-value">{{ stats().clientError }}</span>
+              <span class="stat-label">Client error (4xx)</span>
+            </div>
+            <div class="stat stat-5xx">
+              <span class="stat-value">{{ stats().serverError }}</span>
+              <span class="stat-label">Server error (5xx)</span>
+            </div>
+          </div>
+
           <mat-card class="table-card" appearance="outlined">
             <div class="table-scroll">
               <table mat-table [dataSource]="logs()">

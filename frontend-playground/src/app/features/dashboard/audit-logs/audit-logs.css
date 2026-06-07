@@ -75,6 +75,42 @@
 
 .state.error { color: var(--mat-sys-error); }
 
+/* ─── Stats / counts bar (reflects the filtered results)  */
+.stats-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.stat {
+  flex: 1 1 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: var(--mat-sys-surface-container);
+  border-left: 3px solid var(--mat-sys-outline-variant);
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.stat-total { border-left-color: var(--mat-sys-primary); }
+.stat-2xx   { border-left-color: var(--mat-sys-primary); }
+.stat-3xx   { border-left-color: var(--mat-sys-tertiary); }
+.stat-4xx   { border-left-color: #b26a00; }
+.stat-5xx   { border-left-color: var(--mat-sys-error); }
+
 /* ─── Table  */
 .table-card { padding: 0; overflow: hidden; }
 .table-scroll { overflow-x: auto; }
