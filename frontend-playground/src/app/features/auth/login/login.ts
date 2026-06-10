@@ -32,6 +32,7 @@ const SERVER_ERRORS: Record<number, string> = {
   0: 'Cannot reach the server, Please try again.',
   401: 'Incorrect email or password.',
   403: 'Your account has been deactivated. Please contact support.',
+  429: 'Too many failed attempts. Please wait a few minutes and try again.',
 };
 const FALLBACK_ERROR = 'Sign-in failed. Please try again.';
 
