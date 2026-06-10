@@ -27,10 +27,10 @@ interface RoleDisplay {
 }
 
 const ROLE_DISPLAY: Record<Role, RoleDisplay> = {
-  Guest:      { icon: 'visibility',           description: 'Read-only access' },
-  Regular:    { icon: 'person',               description: 'Standard user' },
-  Admin:      { icon: 'admin_panel_settings', description: 'Administrative privileges' },
-  SuperAdmin: { icon: 'shield',               description: 'Full system access' }
+  Guest: { icon: 'visibility', description: 'Read-only access' },
+  Regular: { icon: 'person', description: 'Standard user' },
+  Admin: { icon: 'admin_panel_settings', description: 'Administrative privileges' },
+  SuperAdmin: { icon: 'shield', description: 'Full system access' }
 };
 
 const SERVER_ERRORS: Record<number, string> = {
@@ -104,5 +104,9 @@ export class Profile implements OnInit {
 
   onViewAuditLogs(): void {
     this.router.navigate(['/audit-logs']);
+  }
+
+  onViewWorldClock(): void {
+    this.router.navigate(['/world-clock']);
   }
 }
