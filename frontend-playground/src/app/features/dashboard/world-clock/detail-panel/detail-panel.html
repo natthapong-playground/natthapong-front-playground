@@ -1,0 +1,18 @@
+@if (country(); as c) {
+  <div class="panel" role="status">
+    <div class="head">
+      <span class="flag fi fi-{{ c.code.toLowerCase() }}"></span>
+      <span class="name">{{ c.name }}</span>
+    </div>
+    <dl class="rows">
+      <div class="line">
+        <dt>Timezone</dt>
+        <dd>{{ c.timezone }} · {{ c.utcOffsetLabel }}</dd>
+      </div>
+      <div class="line">
+        <dt>Current time</dt>
+        <dd class="time">{{ localTime() }}</dd>
+      </div>
+    </dl>
+  </div>
+}

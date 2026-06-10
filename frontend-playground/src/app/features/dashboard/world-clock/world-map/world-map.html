@@ -1,0 +1,20 @@
+<svg class="map" [attr.viewBox]="viewBox" preserveAspectRatio="xMidYMid meet" role="img" aria-label="World map"
+    (mouseleave)="onLeave()">
+    @for (shape of shapes(); track $index) {
+    <path [attr.d]="shape.d" class="country" [class.selected]="isSelected(shape.code)"
+        [class.hovered]="shape.code && hovered() === shape.code" [attr.data-shade]="shape.shade"
+        [class.clickable]="!!shape.code" (mouseenter)="onEnter(shape)" (click)="onClick(shape)">
+        <title>{{ shape.name }}</title>
+    </path>
+    }
+
+    @if (showGrid()) {
+    <g class="tz-grid">
+        @for (band of bands(); track band.offset) {
+        <line [attr.x1]="band.lineX" y1="0" [attr.x2]="band.lineX" y2="500" class="tz-line" />
+        <text [attr.x]="band.x" y="16" class="tz-time" text-anchor="middle">{{ band.time }}</text>
+        <text [attr.x]="band.x" y="494" class="tz-off" text-anchor="middle">{{ band.label }}</text>
+        }
+    </g>
+    }
+</svg>

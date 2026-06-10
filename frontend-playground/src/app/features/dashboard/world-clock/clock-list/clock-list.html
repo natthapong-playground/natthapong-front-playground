@@ -1,0 +1,15 @@
+@if (countries().length === 0) {
+  <div class="empty-state">
+    <mat-icon>travel_explore</mat-icon>
+    <p>Search above to add a country.</p>
+  </div>
+} @else {
+  <div class="clock-list">
+    @for (country of countries(); track country.code) {
+      <app-clock-list-item
+        [country]="country"
+        [now]="now()"
+        (remove)="remove.emit($event)" />
+    }
+  </div>
+}

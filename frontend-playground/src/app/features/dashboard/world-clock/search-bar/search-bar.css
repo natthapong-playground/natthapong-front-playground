@@ -1,0 +1,37 @@
+.search-field {
+  width: 100%;
+}
+
+/* Frosted white pill floating over the dark map (matches the mockup). The
+   autocomplete panel itself renders in a CDK overlay at the body level, so it
+   keeps the default light Material look — readable and intentional. */
+::ng-deep .search-field .mat-mdc-text-field-wrapper {
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 999px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
+}
+::ng-deep .search-field .mdc-notched-outline__leading,
+::ng-deep .search-field .mdc-notched-outline__notch,
+::ng-deep .search-field .mdc-notched-outline__trailing {
+  border-color: transparent !important;
+}
+::ng-deep .search-field .mat-mdc-form-field-icon-prefix {
+  padding-left: 0.5rem;
+  color: #1b3a5b;
+}
+
+.opt-flag {
+  margin-right: 0.6rem;
+  font-size: 1.2rem;
+}
+
+.opt-name {
+  font-weight: 500;
+}
+
+.opt-offset {
+  margin-left: 0.6rem;
+  font-size: 0.78rem;
+  color: var(--mat-sys-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}

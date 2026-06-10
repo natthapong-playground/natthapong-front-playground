@@ -1,0 +1,18 @@
+<div class="row">
+  <span class="flag fi fi-{{ country().code.toLowerCase() }}"></span>
+
+  <div class="info">
+    <span class="name">{{ country().name }}</span>
+    <span class="offset">{{ country().utcOffsetLabel }}</span>
+  </div>
+
+  <span class="time">{{ localTime() }}</span>
+
+  <button
+    mat-icon-button
+    class="remove"
+    (click)="remove.emit(country().code)"
+    [attr.aria-label]="'Remove ' + country().name">
+    <mat-icon>remove</mat-icon>
+  </button>
+</div>
