@@ -24,9 +24,9 @@ export class CountryApiService {
     return this.http.get<Country>(`${this.base}/countries/${code.toUpperCase()}`);
   }
 
-  // GET /clock?codes=TH,GB,DE > snapshot for the whole list.
+  // GET /clock?code=TH,GB,DE > snapshot for the whole list.
   getClock(codes: string[]): Observable<ClockSnapshot> {
-    const params = new HttpParams().set('codes', codes.join(','));
+    const params = new HttpParams().set('code', codes.join(','));
     return this.http.get<ClockSnapshot>(`${this.base}/clock`, { params });
   }
 }
