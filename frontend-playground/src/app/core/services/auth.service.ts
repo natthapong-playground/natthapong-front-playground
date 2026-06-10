@@ -1,13 +1,14 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, finalize, shareReplay, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Role } from '../models/user.model';
 import { JwtPayload, TokenResponse } from '../models/auth.model';
 import { switchMap } from 'rxjs';
 
 const TOKEN_KEY = 'access_token';
+const REFRESH_KEY = 'refresh_token';
 
 @Injectable({ providedIn: 'root' })
 
@@ -16,6 +17,9 @@ export class AuthService {
     private http = inject(HttpClient);
     private router = inject(Router);
     private readonly _token = signal<string | null>(this.readToken());
+
+    // A single in-flight refresh shared by every request that hit 401 at once.
+    private refresh$: Observable<TokenResponse> | null = null;
 
     readonly token = this._token.asReadonly();
 
@@ -53,16 +57,43 @@ export class AuthService {
         });
 
         return this.http.post<TokenResponse>(`${environment.apiUrl}/login`, body.toString(), { headers })
-            .pipe(tap(res => this.saveToken(res.access_token)));
+            .pipe(tap(res => this.saveTokens(res)));
+    }
+
+    /**
+     * Swap the stored refresh token for a fresh access+refresh pair. Concurrent
+     * callers share one round-trip; the backend rotates (revokes) the old refresh
+     * token, so this works at most once per stored token.
+     */
+    refreshToken(): Observable<TokenResponse> {
+        const refresh_token = this.readRefreshToken();
+        if (!refresh_token) {
+            return throwError(() => new Error('No refresh token available'));
+        }
+
+        if (!this.refresh$) {
+            this.refresh$ = this.http
+                .post<TokenResponse>(`${environment.apiUrl}/refresh-token`, { refresh_token })
+                .pipe(
+                    tap(res => this.saveTokens(res)),
+                    finalize(() => { this.refresh$ = null; }),
+                    shareReplay(1)
+                );
+        }
+
+        return this.refresh$;
     }
 
     logout(): void {
         const token = this._token();
-        this.clearToken();
+        const refresh_token = this.readRefreshToken();
+        this.clearTokens();
         this.router.navigate(['/login']);
         if (token) {
             const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-            this.http.post(`${environment.apiUrl}/logout`, null, { headers })
+            // Send the refresh token too so the server revokes the whole session.
+            const body = refresh_token ? { refresh_token } : null;
+            this.http.post(`${environment.apiUrl}/logout`, body, { headers })
                 .subscribe({ next: () => { }, error: () => { } });
         }
     }
@@ -73,18 +104,20 @@ export class AuthService {
             .pipe(switchMap(() => this.login(email, password)));
     }
 
-    private saveToken(token: string): void {
+    private saveTokens(res: TokenResponse): void {
         try {
-            localStorage.setItem(TOKEN_KEY, token);
+            localStorage.setItem(TOKEN_KEY, res.access_token);
+            localStorage.setItem(REFRESH_KEY, res.refresh_token);
         } catch {
             /* no-op */
         }
-        this._token.set(token);
+        this._token.set(res.access_token);
     }
 
-    private clearToken(): void {
+    private clearTokens(): void {
         try {
             localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem(REFRESH_KEY);
         } catch {
             /* no-op */
         }
@@ -94,6 +127,14 @@ export class AuthService {
     private readToken(): string | null {
         try {
             return localStorage.getItem(TOKEN_KEY);
+        } catch {
+            return null;
+        }
+    }
+
+    private readRefreshToken(): string | null {
+        try {
+            return localStorage.getItem(REFRESH_KEY);
         } catch {
             return null;
         }

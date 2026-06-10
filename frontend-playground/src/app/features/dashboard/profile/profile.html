@@ -3,11 +3,15 @@
     <mat-icon class="brand-icon">dashboard</mat-icon>
     <span class="brand-text">Playground</span>
     <span class="spacer"></span>
+    <button mat-stroked-button (click)="onViewWorldClock()">
+      <mat-icon>public</mat-icon>
+      <span>World Clock</span>
+    </button>
     @if (isSuperAdmin()) {
-      <button mat-stroked-button (click)="onViewAuditLogs()">
-        <mat-icon>receipt_long</mat-icon>
-        <span>Audit Logs</span>
-      </button>
+    <button mat-stroked-button (click)="onViewAuditLogs()">
+      <mat-icon>receipt_long</mat-icon>
+      <span>Audit Logs</span>
+    </button>
     }
     <button mat-stroked-button (click)="onLogout()">
       <mat-icon>logout</mat-icon>
@@ -17,71 +21,71 @@
 
   <main class="profile-main">
     @switch (state().kind) {
-      @case ('loading') {
-        <div class="state">
-          <mat-progress-spinner mode="indeterminate" diameter="32"></mat-progress-spinner>
-          <span>Loading your profile…</span>
-        </div>
-      }
+    @case ('loading') {
+    <div class="state">
+      <mat-progress-spinner mode="indeterminate" diameter="32"></mat-progress-spinner>
+      <span>Loading your profile…</span>
+    </div>
+    }
 
-      @case ('error') {
-        @if (errorMessage(); as msg) {
-          <div class="state error" role="alert">
-            <mat-icon>error_outline</mat-icon>
-            <span>{{ msg }}</span>
+    @case ('error') {
+    @if (errorMessage(); as msg) {
+    <div class="state error" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ msg }}</span>
+    </div>
+    }
+    }
+
+    @case ('loaded') {
+    @if (loadedUser(); as user) {
+    <mat-card class="profile-card" appearance="outlined">
+      <mat-card-header>
+        <div mat-card-avatar class="profile-avatar">{{ initial() }}</div>
+        <mat-card-title>{{ user.email }}</mat-card-title>
+        <mat-card-subtitle>
+          <mat-chip-set>
+            <mat-chip [attr.data-role]="user.role" disableRipple>
+              <mat-icon matChipAvatar>{{ roleInfo()?.icon }}</mat-icon>
+              {{ user.role }}
+            </mat-chip>
+          </mat-chip-set>
+          <span class="role-description">{{ roleInfo()?.description }}</span>
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-divider></mat-divider>
+
+      <mat-card-content>
+        <dl class="profile-details">
+          <div class="detail">
+            <dt><mat-icon>badge</mat-icon>User ID</dt>
+            <dd>#{{ user.id }}</dd>
           </div>
-        }
-      }
 
-      @case ('loaded') {
-        @if (loadedUser(); as user) {
-          <mat-card class="profile-card" appearance="outlined">
-            <mat-card-header>
-              <div mat-card-avatar class="profile-avatar">{{ initial() }}</div>
-              <mat-card-title>{{ user.email }}</mat-card-title>
-              <mat-card-subtitle>
-                <mat-chip-set>
-                  <mat-chip [attr.data-role]="user.role" disableRipple>
-                    <mat-icon matChipAvatar>{{ roleInfo()?.icon }}</mat-icon>
-                    {{ user.role }}
-                  </mat-chip>
-                </mat-chip-set>
-                <span class="role-description">{{ roleInfo()?.description }}</span>
-              </mat-card-subtitle>
-            </mat-card-header>
+          <div class="detail">
+            <dt><mat-icon>radio_button_checked</mat-icon>Status</dt>
+            <dd>
+              <span class="status" [class.active]="user.is_active">
+                {{ user.is_active ? 'Active' : 'Inactive' }}
+              </span>
+            </dd>
+          </div>
 
-            <mat-divider></mat-divider>
+          <div class="detail">
+            <dt><mat-icon>event</mat-icon>Created</dt>
+            <dd>{{ user.created_at | date:'medium' }}</dd>
+          </div>
 
-            <mat-card-content>
-              <dl class="profile-details">
-                <div class="detail">
-                  <dt><mat-icon>badge</mat-icon>User ID</dt>
-                  <dd>#{{ user.id }}</dd>
-                </div>
-
-                <div class="detail">
-                  <dt><mat-icon>radio_button_checked</mat-icon>Status</dt>
-                  <dd>
-                    <span class="status" [class.active]="user.is_active">
-                      {{ user.is_active ? 'Active' : 'Inactive' }}
-                    </span>
-                  </dd>
-                </div>
-
-                <div class="detail">
-                  <dt><mat-icon>event</mat-icon>Created</dt>
-                  <dd>{{ user.created_at | date:'medium' }}</dd>
-                </div>
-
-                <div class="detail">
-                  <dt><mat-icon>update</mat-icon>Last updated</dt>
-                  <dd>{{ user.updated_at | date:'medium' }}</dd>
-                </div>
-              </dl>
-            </mat-card-content>
-          </mat-card>
-        }
-      }
+          <div class="detail">
+            <dt><mat-icon>update</mat-icon>Last updated</dt>
+            <dd>{{ user.updated_at | date:'medium' }}</dd>
+          </div>
+        </dl>
+      </mat-card-content>
+    </mat-card>
+    }
+    }
     }
   </main>
 </div>

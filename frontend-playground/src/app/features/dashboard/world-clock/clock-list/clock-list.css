@@ -1,0 +1,31 @@
+.clock-list {
+  background: rgba(8, 21, 40, 0.78);
+  border: 1px solid rgba(120, 200, 255, 0.22);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.75rem 1rem;
+  color: #9fc2e6;
+  text-align: center;
+  background: rgba(8, 21, 40, 0.6);
+  border: 1px dashed rgba(120, 200, 255, 0.28);
+  border-radius: 14px;
+  backdrop-filter: blur(6px);
+}
+
+.empty-state mat-icon {
+  font-size: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  opacity: 0.7;
+}
+
+.empty-state p { margin: 0; }

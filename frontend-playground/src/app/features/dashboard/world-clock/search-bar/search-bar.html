@@ -1,0 +1,23 @@
+<mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+  <mat-icon matPrefix>search</mat-icon>
+  <input
+    type="text"
+    matInput
+    placeholder="Search for a country…"
+    [formControl]="query"
+    [matAutocomplete]="auto" />
+
+  @if (searching()) {
+    <mat-progress-spinner matSuffix mode="indeterminate" diameter="20" />
+  }
+
+  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onSelected($event)">
+    @for (country of results(); track country.code) {
+      <mat-option [value]="country.code">
+        <span class="opt-flag fi fi-{{ country.code.toLowerCase() }}"></span>
+        <span class="opt-name">{{ country.name }}</span>
+        <span class="opt-offset">{{ country.utcOffsetLabel }}</span>
+      </mat-option>
+    }
+  </mat-autocomplete>
+</mat-form-field>

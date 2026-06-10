@@ -1,0 +1,48 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid rgba(120, 200, 255, 0.14);
+  color: #eaf4ff;
+}
+
+.row:last-child { border-bottom: none; }
+
+.flag {
+  font-size: 1.6rem;
+  line-height: 1;
+  width: 2rem;
+  text-align: center;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.offset {
+  font-size: 0.78rem;
+  color: #8fb8e0;
+  font-variant-numeric: tabular-nums;
+}
+
+.time {
+  font-size: 1.35rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: #aee4ff;
+}
+
+.remove { color: #8fb8e0; }

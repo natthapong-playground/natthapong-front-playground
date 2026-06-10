@@ -17,12 +17,16 @@ export const routes: Routes = [
         path: 'audit-logs',
         canActivate: [authGuard, roleGuard('SuperAdmin')],
         loadComponent: () => import('./features/dashboard/audit-logs/audit-logs').then(m => m.AuditLogs)
-    },{
-        path:'',
+    }, {
+        path: 'world-clock',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/dashboard/world-clock/world-clock-page/world-clock-page').then(m => m.WorldClockPage)
+    }, {
+        path: '',
         pathMatch: 'full',
         redirectTo: 'profile'
-    },{
-        path:'**',
+    }, {
+        path: '**',
         redirectTo: 'profile'
     }
 

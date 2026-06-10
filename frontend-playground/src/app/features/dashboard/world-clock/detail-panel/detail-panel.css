@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+
+.panel {
+  min-width: 220px;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: rgba(10, 25, 49, 0.92);
+  border: 1px solid rgba(120, 200, 255, 0.35);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  color: #eaf4ff;
+  backdrop-filter: blur(6px);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.head .flag { font-size: 1.4rem; line-height: 1; }
+.head .name { font-weight: 600; font-size: 1.05rem; }
+
+.rows { margin: 0; display: flex; flex-direction: column; gap: 0.35rem; }
+.line { display: flex; flex-direction: column; gap: 0.1rem; }
+.line dt {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #8fb8e0;
+}
+.line dd { margin: 0; font-size: 0.9rem; }
+.line dd.time {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #aee4ff;
+}
