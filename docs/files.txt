@@ -1,0 +1,407 @@
+# Frontend File Responsibilities
+
+SCOPE
+  TECH:  Entries cover every tracked file under frontend-playground/ as of
+         2026-07-23. Generated and installed directories are excluded.
+  PLAIN: Every frontend file committed to Git is explained below.
+
+== Project configuration ==
+
+frontend-playground/.editorconfig
+  TECH:  Defines cross-editor defaults for indentation, line endings, charset, and
+         final newlines.
+  PLAIN: Keeps basic formatting consistent between contributors' editors.
+
+frontend-playground/.gitignore
+  TECH:  Excludes Angular caches, dependencies, build output, coverage, and local
+         editor files from this application directory.
+  PLAIN: Prevents generated and machine-specific files from entering Git.
+
+frontend-playground/.prettierrc
+  TECH:  Stores the application's Prettier formatting preferences.
+  PLAIN: Tells the formatter how source code should look.
+
+frontend-playground/Dockerfile
+  TECH:  Builds the Angular application with Node 22 Alpine and serves the browser
+         output from a stock Nginx Alpine image on port 80.
+  PLAIN: Packages the frontend as a small web-server container.
+
+frontend-playground/README.md
+  TECH:  Provides directory-level setup, script, source-area, and backend notes and
+         links to the repository README for the full guide.
+  PLAIN: Gives developers a quick start when they open the Angular folder directly.
+
+frontend-playground/angular.json
+  TECH:  Configures Angular build, development server, public assets, global styles,
+         size budgets, source maps, and the unit-test builder.
+  PLAIN: Tells Angular how to build, run, and test the application.
+
+frontend-playground/package.json
+  TECH:  Declares npm scripts, Angular 21 runtime packages, Material/CDK, RxJS,
+         TypeScript, Prettier, jsdom, and Vitest dependencies.
+  PLAIN: Lists the tools and libraries required by the frontend.
+
+frontend-playground/package-lock.json
+  TECH:  Locks the full npm dependency graph for reproducible installations.
+  PLAIN: Makes `npm ci` install the same package versions on each machine.
+
+frontend-playground/tsconfig.json
+  TECH:  Defines shared strict TypeScript and Angular compiler settings.
+  PLAIN: Sets the main type-safety rules for the project.
+
+frontend-playground/tsconfig.app.json
+  TECH:  Extends the shared TypeScript settings for browser application sources.
+  PLAIN: Controls how production application code is compiled.
+
+frontend-playground/tsconfig.spec.json
+  TECH:  Extends the shared TypeScript settings for unit-test sources.
+  PLAIN: Controls how test files are compiled.
+
+== Public assets ==
+
+frontend-playground/public/backgrounds/auth-bg.gif
+  TECH:  Animated image used as the authentication-screen background.
+  PLAIN: Provides the visual background on sign-in and registration pages.
+
+frontend-playground/public/favicon.ico
+  TECH:  Legacy favicon asset copied unchanged into build output but not currently
+         linked by src/index.html.
+  PLAIN: Remains available as an icon asset, although the browser currently uses the
+         PNG logo instead.
+
+frontend-playground/public/logo_n.png
+  TECH:  Project logo linked by src/index.html as the browser favicon.
+  PLAIN: Displays the project branding in browser tabs and bookmarks.
+
+frontend-playground/public/world.geojson
+  TECH:  GeoJSON FeatureCollection loaded by WorldMap and projected into SVG paths.
+  PLAIN: Supplies the country outlines shown on the interactive map.
+
+== Bootstrap, environment, and global UI ==
+
+frontend-playground/src/index.html
+  TECH:  Hosts the app-root element, metadata, favicon, and external Google font,
+         Material icon, and flag-icon stylesheets.
+  PLAIN: Is the browser document that Angular fills with the application.
+
+frontend-playground/src/main.ts
+  TECH:  Calls bootstrapApplication(App, appConfig) and reports bootstrap failures.
+  PLAIN: Starts the Angular application.
+
+frontend-playground/src/material-theme.scss
+  TECH:  Defines the global Angular Material theme and component appearance.
+  PLAIN: Controls the colors and styling shared by Material controls.
+
+frontend-playground/src/styles.css
+  TECH:  Provides global reset, layout, typography, and document-level styles.
+  PLAIN: Applies shared visual rules across every screen.
+
+frontend-playground/src/environments/environment.ts
+  TECH:  Exports production=false and the development API base URL
+         http://127.0.0.1:8000/api/v1.
+  PLAIN: Points local frontend requests at the development backend.
+
+frontend-playground/src/environments/environment.prod.ts
+  TECH:  Exports production=true but no active apiUrl; angular.json currently has no
+         file replacement that selects this file.
+  PLAIN: Is a production placeholder and is not yet wired into builds.
+
+== Application shell ==
+
+frontend-playground/src/app/app.ts
+  TECH:  Declares the standalone App root component and imports RouterOutlet.
+  PLAIN: Provides the top-level container for whichever page is active.
+
+frontend-playground/src/app/app.html
+  TECH:  Renders the router-outlet used by all lazy-loaded pages.
+  PLAIN: Reserves the screen area where the selected page appears.
+
+frontend-playground/src/app/app.css
+  TECH:  Holds root-component styles; it is currently minimal.
+  PLAIN: Is available for styles that belong only to the app shell.
+
+frontend-playground/src/app/app.spec.ts
+  TECH:  Contains generated root-component unit tests; its heading assertion does
+         not match the current router-only template.
+  PLAIN: Is an early test file that needs updating before it reliably tests the app.
+
+frontend-playground/src/app/app.config.ts
+  TECH:  Registers browser error listeners, Router providers, HttpClient, and the
+         functional authInterceptor.
+  PLAIN: Connects routing, web requests, and authentication handling at startup.
+
+frontend-playground/src/app/app.routes.ts
+  TECH:  Declares lazy routes, guest/auth/role guards, and redirects for login,
+         register, profile, audit logs, and world clock.
+  PLAIN: Decides which screen each URL opens and who may open it.
+
+== Core guards, interceptor, and models ==
+
+frontend-playground/src/app/core/guards/auth.guard.ts
+  TECH:  Exports authGuard, guestGuard, and the roleGuard factory using AuthService
+         signals and Router UrlTrees.
+  PLAIN: Redirects visitors who are signed out or do not have the required role.
+
+frontend-playground/src/app/core/interceptors/auth.interceptor.ts
+  TECH:  Adds bearer tokens, refreshes once after recoverable 401 responses, shares
+         refresh work through AuthService, retries, and logs out on failure.
+  PLAIN: Keeps authenticated requests working when an access token expires.
+
+frontend-playground/src/app/core/models/audit-log.model.ts
+  TECH:  Defines AuditLog response fields and optional AuditLogQuery filters.
+  PLAIN: Describes audit records and the filters the frontend can request.
+
+frontend-playground/src/app/core/models/auth.model.ts
+  TECH:  Defines TokenResponse, RefreshRequest, and decoded JwtPayload contracts.
+  PLAIN: Describes the token data exchanged with the authentication API.
+
+frontend-playground/src/app/core/models/country.model.ts
+  TECH:  Defines Country timezone data and ClockSnapshot response structures.
+  PLAIN: Describes country clocks and synchronized groups returned by the backend.
+
+frontend-playground/src/app/core/models/user.model.ts
+  TECH:  Defines the Role union and User profile response fields.
+  PLAIN: Describes a user account and its permission level.
+
+== Core services ==
+
+frontend-playground/src/app/core/services/audit.service.ts
+  TECH:  Converts AuditLogQuery values into HttpParams and GETs /audit-logs.
+  PLAIN: Loads audit records using the filters selected by a SuperAdmin.
+
+frontend-playground/src/app/core/services/auth.service.ts
+  TECH:  Owns JWT state, login, refresh sharing, logout/revocation, registration,
+         role decoding, and localStorage token persistence.
+  PLAIN: Manages the user's signed-in session from account creation through logout.
+
+frontend-playground/src/app/core/services/clock.service.ts
+  TECH:  Synchronizes selected clocks, advances a shared Date each second, polls the
+         API every 60 seconds, resyncs on visibility, and exposes status signals.
+  PLAIN: Keeps all displayed country clocks moving together and periodically correct.
+
+frontend-playground/src/app/core/services/country-api.service.ts
+  TECH:  Wraps GET /countries, /countries/{code}, and /clock requests with typed
+         Observable responses.
+  PLAIN: Retrieves searchable countries, country details, and clock snapshots.
+
+frontend-playground/src/app/core/services/selection-store.service.ts
+  TECH:  Exposes a read-only country-code signal and persists normalized additions
+         and removals under world-clock.codes.v1 in localStorage.
+  PLAIN: Remembers the user's selected clocks between page reloads.
+
+frontend-playground/src/app/core/services/user.service.ts
+  TECH:  GETs /users/myprofile and returns Observable<User>.
+  PLAIN: Loads the signed-in user's profile details.
+
+== Authentication feature ==
+
+frontend-playground/src/app/features/auth/login/login.ts
+  TECH:  Implements the Login standalone component, reactive validation, password
+         visibility, loading/error signals, AuthService login, and profile routing.
+  PLAIN: Powers the sign-in form and explains invalid input or server failures.
+
+frontend-playground/src/app/features/auth/login/login.html
+  TECH:  Renders the branded login card, email/password controls, validation,
+         loading state, errors, and registration link.
+  PLAIN: Is the sign-in screen users see and interact with.
+
+frontend-playground/src/app/features/auth/login/login.css
+  TECH:  Styles the responsive login layout, card, controls, and feedback states.
+  PLAIN: Makes the sign-in screen readable and responsive.
+
+frontend-playground/src/app/features/auth/login/login.spec.ts
+  TECH:  Contains the generated Login component construction test.
+  PLAIN: Provides a starting point for sign-in tests but not full behavior coverage.
+
+frontend-playground/src/app/features/auth/register/register.ts
+  TECH:  Implements registration validation, password matching and strength,
+         visibility/loading/error signals, auto-login, and profile navigation.
+  PLAIN: Powers account creation and helps users choose and confirm a password.
+
+frontend-playground/src/app/features/auth/register/register.html
+  TECH:  Renders registration fields, validation and strength feedback, submit state,
+         server errors, and the login link.
+  PLAIN: Is the account-creation screen users see and interact with.
+
+frontend-playground/src/app/features/auth/register/register.css
+  TECH:  Styles the responsive registration card, password meter, and form feedback.
+  PLAIN: Makes the registration screen clear and usable.
+
+frontend-playground/src/app/features/auth/register/register.spec.ts
+  TECH:  Contains the generated Register component construction test.
+  PLAIN: Provides a starting point for registration tests but limited coverage.
+
+== Profile feature ==
+
+frontend-playground/src/app/features/dashboard/profile/profile.ts
+  TECH:  Loads the current User, models loading/error/loaded states, derives role
+         display data, and handles logout, audit-log, and world-clock navigation.
+  PLAIN: Powers the account summary and buttons available for the user's role.
+
+frontend-playground/src/app/features/dashboard/profile/profile.html
+  TECH:  Renders the toolbar, profile identity, status, timestamps, role details,
+         errors, loading state, and conditional SuperAdmin action.
+  PLAIN: Shows the signed-in user their account information and available tools.
+
+frontend-playground/src/app/features/dashboard/profile/profile.css
+  TECH:  Styles the profile toolbar, cards, avatar, metadata, actions, and breakpoints.
+  PLAIN: Organizes the profile page for desktop and smaller screens.
+
+frontend-playground/src/app/features/dashboard/profile/profile.spec.ts
+  TECH:  Contains the generated Profile component construction test.
+  PLAIN: Provides a starting point for profile tests but limited behavior coverage.
+
+== Audit-log feature ==
+
+frontend-playground/src/app/features/dashboard/audit-logs/audit-logs.ts
+  TECH:  Implements query signals, page state, page-local status statistics, Material
+         table data, API loading, filtering, paging, status classes, and navigation.
+  PLAIN: Powers the SuperAdmin screen for finding and reviewing backend activity.
+
+frontend-playground/src/app/features/dashboard/audit-logs/audit-logs.html
+  TECH:  Renders the toolbar, filters, statistics, audit table, loading/error state,
+         and previous/next controls.
+  PLAIN: Displays searchable request history and a summary of loaded results.
+
+frontend-playground/src/app/features/dashboard/audit-logs/audit-logs.css
+  TECH:  Styles audit filters, stat cards, responsive table, HTTP method chips, status
+         families, paging, and feedback states.
+  PLAIN: Makes dense audit information easier to scan.
+
+frontend-playground/src/app/features/dashboard/audit-logs/audit-logs.spec.ts
+  TECH:  Contains the generated AuditLogs component construction test.
+  PLAIN: Provides a starting point for audit-screen tests but limited coverage.
+
+== World-clock page ==
+
+frontend-playground/src/app/features/dashboard/world-clock/world-clock-page/world-clock-page.ts
+  TECH:  Composes world-clock children, owns persisted view toggles, selected clocks,
+         hover lookup/cache protection, profile navigation, and logout.
+  PLAIN: Coordinates everything users can do on the world-clock screen.
+
+frontend-playground/src/app/features/dashboard/world-clock/world-clock-page/world-clock-page.html
+  TECH:  Connects map, search, draggable clock list, detail panel, footer, error state,
+         and action buttons through signal inputs and outputs.
+  PLAIN: Arranges the full-screen map and controls into one interactive page.
+
+frontend-playground/src/app/features/dashboard/world-clock/world-clock-page/world-clock-page.css
+  TECH:  Defines the full-viewport map stage, overlay positions, draggable panels,
+         controls, sync messages, and responsive behavior.
+  PLAIN: Places world-clock tools over the map on desktop and mobile.
+
+frontend-playground/src/app/features/dashboard/world-clock/world-clock-page/world-clock-page.spec.ts
+  TECH:  Contains the generated WorldClockPage component construction test.
+  PLAIN: Provides a starting point for page tests but limited behavior coverage.
+
+== World-clock search ==
+
+frontend-playground/src/app/features/dashboard/world-clock/search-bar/search-bar.ts
+  TECH:  Debounces search input for 250 ms, requests up to eight countries, exposes
+         result/loading signals, handles errors, and emits selected country codes.
+  PLAIN: Lets users search for a country without sending a request on every keystroke.
+
+frontend-playground/src/app/features/dashboard/world-clock/search-bar/search-bar.html
+  TECH:  Renders Material autocomplete options, country flags/names/offsets, and search
+         progress feedback.
+  PLAIN: Displays the country search box and matching suggestions.
+
+frontend-playground/src/app/features/dashboard/world-clock/search-bar/search-bar.css
+  TECH:  Styles the floating autocomplete field, option metadata, and loading icon.
+  PLAIN: Keeps search suggestions readable over the map.
+
+frontend-playground/src/app/features/dashboard/world-clock/search-bar/search-bar.spec.ts
+  TECH:  Contains the generated SearchBar component construction test.
+  PLAIN: Provides a starting point for search tests but limited behavior coverage.
+
+== World-clock list ==
+
+frontend-playground/src/app/features/dashboard/world-clock/clock-list/clock-list.ts
+  TECH:  Declares country and required Date inputs and forwards remove output events
+         from ClockListItem children.
+  PLAIN: Holds the collection of clocks selected by the user.
+
+frontend-playground/src/app/features/dashboard/world-clock/clock-list/clock-list.html
+  TECH:  Iterates selected countries into ClockListItem rows and renders the empty
+         state when no country is selected.
+  PLAIN: Shows saved clocks or explains how to add the first one.
+
+frontend-playground/src/app/features/dashboard/world-clock/clock-list/clock-list.css
+  TECH:  Styles the list container appearance and its empty-state layout.
+  PLAIN: Keeps the selected clock list compact and readable.
+
+frontend-playground/src/app/features/dashboard/world-clock/clock-list/clock-list.spec.ts
+  TECH:  Contains the generated ClockList component construction test.
+  PLAIN: Provides a starting point for clock-list tests but limited coverage.
+
+frontend-playground/src/app/features/dashboard/world-clock/clock-list-item/clock-list-item.ts
+  TECH:  Accepts required Country and Date inputs, computes zoned 24-hour time with
+         Intl.DateTimeFormat, and emits remove events.
+  PLAIN: Calculates and displays one country's live local time.
+
+frontend-playground/src/app/features/dashboard/world-clock/clock-list-item/clock-list-item.html
+  TECH:  Renders a country flag, name, offset, live time, and remove button.
+  PLAIN: Is one visible row in the user's saved clock list.
+
+frontend-playground/src/app/features/dashboard/world-clock/clock-list-item/clock-list-item.css
+  TECH:  Styles clock-row alignment, flag, metadata, time, and hover/remove states.
+  PLAIN: Makes each saved country's information easy to scan.
+
+frontend-playground/src/app/features/dashboard/world-clock/clock-list-item/clock-list-item.spec.ts
+  TECH:  Contains the generated ClockListItem component construction test.
+  PLAIN: Provides a starting point for clock-row tests but limited coverage.
+
+== World map and hover details ==
+
+frontend-playground/src/app/features/dashboard/world-clock/world-map/world-map.ts
+  TECH:  Loads GeoJSON, projects Polygon/MultiPolygon rings into SVG, computes UTC
+         bands, tracks selection/hover, debounces hover output, and emits map clicks.
+  PLAIN: Turns map data into clickable countries and an optional timezone grid.
+
+frontend-playground/src/app/features/dashboard/world-clock/world-map/world-map.html
+  TECH:  Renders timezone bands and country SVG paths with selected and hover states.
+  PLAIN: Is the visible map users hover over and click.
+
+frontend-playground/src/app/features/dashboard/world-clock/world-map/world-map.css
+  TECH:  Styles the SVG canvas, country shades, selected/hover states, timezone grid,
+         labels, and map background.
+  PLAIN: Makes countries and timezone information visually distinguishable.
+
+frontend-playground/src/app/features/dashboard/world-clock/world-map/world-map.spec.ts
+  TECH:  Contains the generated WorldMap component construction test.
+  PLAIN: Provides a starting point for map tests but limited behavior coverage.
+
+frontend-playground/src/app/features/dashboard/world-clock/detail-panel/detail-panel.ts
+  TECH:  Accepts an optional Country and required Date and computes its zoned
+         24-hour time with Intl.DateTimeFormat.
+  PLAIN: Calculates live information for the country under the mouse pointer.
+
+frontend-playground/src/app/features/dashboard/world-clock/detail-panel/detail-panel.html
+  TECH:  Renders hovered-country flag, name, timezone, offset, and live time.
+  PLAIN: Shows a quick country summary while the user explores the map.
+
+frontend-playground/src/app/features/dashboard/world-clock/detail-panel/detail-panel.css
+  TECH:  Styles and positions the map hover-information panel.
+  PLAIN: Keeps hover details legible without hiding too much of the map.
+
+frontend-playground/src/app/features/dashboard/world-clock/detail-panel/detail-panel.spec.ts
+  TECH:  Contains the generated DetailPanel component construction test.
+  PLAIN: Provides a starting point for detail-panel tests but limited coverage.
+
+== World-clock footer ==
+
+frontend-playground/src/app/features/dashboard/world-clock/footer/footer.ts
+  TECH:  Accepts referenceUtc and computes a localized, validated last-updated label.
+  PLAIN: Converts the latest server timestamp into a readable update time.
+
+frontend-playground/src/app/features/dashboard/world-clock/footer/footer.html
+  TECH:  Renders synchronization attribution and the formatted update timestamp.
+  PLAIN: Tells users when the clock data was last synchronized.
+
+frontend-playground/src/app/features/dashboard/world-clock/footer/footer.css
+  TECH:  Styles and positions the small synchronization footer overlay.
+  PLAIN: Keeps update information visible without distracting from the map.
+
+frontend-playground/src/app/features/dashboard/world-clock/footer/footer.spec.ts
+  TECH:  Contains a stale generated test that imports Footer although the component
+         class is named WorldClockFooter.
+  PLAIN: Is an outdated test file that must be corrected before the suite is reliable.

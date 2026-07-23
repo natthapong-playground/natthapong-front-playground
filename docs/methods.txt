@@ -1,0 +1,663 @@
+# Frontend Methods, Signals, Routes, and APIs
+
+== Bootstrap and routes ==
+
+bootstrapApplication(App, appConfig)  [src/main.ts]
+  TECH:  Starts the standalone root component with router, HttpClient, interceptor,
+         and browser error-listener providers; rejected startup logs to console.
+  PLAIN: Starts the frontend and reports if Angular cannot initialize it.
+
+appConfig.providers  [src/app/app.config.ts]
+  TECH:  Registers provideBrowserGlobalErrorListeners(), provideRouter(routes), and
+         provideHttpClient(withInterceptors([authInterceptor])).
+  PLAIN: Makes routing, API requests, and authentication handling available app-wide.
+
+route /login  [src/app/app.routes.ts]
+  TECH:  guestGuard-protected lazy route loading Login.
+  PLAIN: Opens sign-in only for visitors who are not already signed in.
+
+route /register  [src/app/app.routes.ts]
+  TECH:  guestGuard-protected lazy route loading Register.
+  PLAIN: Opens account creation only for signed-out visitors.
+
+route /profile  [src/app/app.routes.ts]
+  TECH:  authGuard-protected lazy route loading Profile.
+  PLAIN: Shows account information after the user signs in.
+
+route /audit-logs  [src/app/app.routes.ts]
+  TECH:  Lazy route loading AuditLogs after authGuard and
+         roleGuard('SuperAdmin') both pass.
+  PLAIN: Allows only signed-in SuperAdmins to inspect backend activity.
+
+route /world-clock  [src/app/app.routes.ts]
+  TECH:  authGuard-protected lazy route loading WorldClockPage.
+  PLAIN: Opens the interactive clocks for signed-in users.
+
+routes / and **  [src/app/app.routes.ts]
+  TECH:  Empty and unmatched URLs redirect to /profile; authGuard on /profile then
+         redirects unauthenticated users to /login.
+  PLAIN: Sends visitors to the main account page or sign-in instead of a dead end.
+
+== Authorization and HTTP interception ==
+
+authGuard: CanActivateFn  [core/guards/auth.guard.ts]
+  TECH:  Returns true when AuthService.isAuthenticated() is true; otherwise returns
+         Router.createUrlTree(['/login']).
+  PLAIN: Prevents signed-out visitors from opening protected pages.
+
+guestGuard: CanActivateFn  [core/guards/auth.guard.ts]
+  TECH:  Redirects authenticated users to /profile and allows other visitors.
+  PLAIN: Keeps signed-in users from returning to sign-in and registration screens.
+
+roleGuard(...roles: Role[]): CanActivateFn  [core/guards/auth.guard.ts]
+  TECH:  Requires authentication and a decoded currentRole included in roles;
+         failures redirect to /login or /profile as appropriate.
+  PLAIN: Restricts sensitive pages to approved account roles.
+
+isAuthEndpoint(url: string): boolean  [core/interceptors/auth.interceptor.ts]
+  TECH:  Tests the URL against /login, /refresh-token, and /users/register so their
+         401 responses do not trigger recursive refresh attempts.
+  PLAIN: Recognizes requests where a 401 means the credentials themselves failed.
+
+authInterceptor: HttpInterceptorFn  [core/interceptors/auth.interceptor.ts]
+  TECH:  Clones requests with the current bearer token. On an eligible 401 it calls
+         refreshToken(), retries once with the new access token, and logs out if
+         refresh or retry fails; unrecoverable authenticated 401s also log out.
+  PLAIN: Adds authentication to API calls and silently renews expired sessions when
+         possible.
+
+== AuthService ==
+
+AuthService.token: Signal<string | null>
+  TECH:  Read-only view of the access token initialized from localStorage.
+  PLAIN: Lets the application react to the current session token.
+
+AuthService._token: WritableSignal<string | null>
+  TECH:  Private writable source initialized by readToken() and exposed through the
+         read-only token signal.
+  PLAIN: Holds the session token internally while preventing pages from changing it.
+
+AuthService.isAuthenticated: Signal<boolean>
+  TECH:  Computed signal that decodes token exp and requires expiration to be later
+         than Date.now(). Missing, malformed, or expired tokens return false.
+  PLAIN: Reports whether the stored login is still valid.
+
+AuthService.currentRole: Signal<Role | null>
+  TECH:  Computed signal returning the decoded JWT role or null.
+  PLAIN: Identifies which permissions the signed-in user has.
+
+AuthService.login(email: string, password: string): Observable<TokenResponse>
+  TECH:  POSTs URL-encoded username/password to /login and persists the returned
+         access and refresh token pair through saveTokens().
+  PLAIN: Signs in with email and password and remembers the new session.
+
+AuthService.refreshToken(): Observable<TokenResponse>
+  TECH:  POSTs the stored refresh token to /refresh-token, saves rotated tokens, and
+         shares one in-flight request via shareReplay(1); missing tokens error early.
+  PLAIN: Renews an expired session once even when several API calls fail together.
+
+AuthService.logout(): void
+  TECH:  Captures tokens, clears local storage and signal state, navigates to /login,
+         then best-effort POSTs /logout with bearer and optional refresh token.
+  PLAIN: Signs out immediately in the browser and asks the backend to revoke the
+         entire session.
+
+AuthService.register(
+  email: string, password: string, role: Role = 'Regular'
+): Observable<TokenResponse>
+  TECH:  POSTs /users/register and switchMaps a successful response into login().
+  PLAIN: Creates a Regular account by default and signs the new user in.
+
+AuthService.saveTokens(res: TokenResponse): void
+  TECH:  Private helper storing access_token and refresh_token best-effort in
+         localStorage before updating the reactive token signal.
+  PLAIN: Remembers successful authentication and updates the screen immediately.
+
+AuthService.clearTokens(): void
+  TECH:  Private helper removing both token keys best-effort and setting token null.
+  PLAIN: Removes the local session even if browser storage is unavailable.
+
+AuthService.readToken(): string | null
+  TECH:  Private access_token storage reader returning null when localStorage throws.
+  PLAIN: Safely retrieves the remembered access token.
+
+AuthService.readRefreshToken(): string | null
+  TECH:  Private refresh_token storage reader returning null when localStorage throws.
+  PLAIN: Safely retrieves the remembered refresh token.
+
+AuthService.decodeToken(token: string): JwtPayload | null
+  TECH:  Private Base64URL JWT payload decoder with padding normalization and a null
+         fallback for malformed values; it does not cryptographically verify JWTs.
+  PLAIN: Reads expiration and role details from a token without crashing on bad data.
+
+== API services ==
+
+UserService.getMyProfile(): Observable<User>
+  TECH:  GETs `${environment.apiUrl}/users/myprofile`.
+  PLAIN: Retrieves the current user's account information.
+
+AuditService.getLogs(query: AuditLogQuery = {}): Observable<AuditLog[]>
+  TECH:  Adds non-null actor_user_id, method, status_code, skip, and limit values to
+         HttpParams and GETs /audit-logs.
+  PLAIN: Loads a filtered page of request history for the audit screen.
+
+CountryApiService.searchCountries(search: string, limit = 10): Observable<Country[]>
+  TECH:  GETs /countries with required limit and optional search query parameters.
+  PLAIN: Finds countries matching text entered in the clock search box.
+
+CountryApiService.getCountry(code: string): Observable<Country>
+  TECH:  Uppercases code and GETs /countries/{code}.
+  PLAIN: Retrieves timezone details for one country.
+
+CountryApiService.getClock(codes: string[]): Observable<ClockSnapshot>
+  TECH:  Joins codes with commas into the `code` query parameter and GETs /clock.
+  PLAIN: Retrieves one synchronized time snapshot for all selected countries.
+
+== SelectionStore ==
+
+SelectionStore.codes: Signal<string[]>
+  TECH:  Read-only signal initialized by load() from world-clock.codes.v1.
+  PLAIN: Exposes the list of countries selected for live clocks.
+
+SelectionStore._codes: WritableSignal<string[]>
+  TECH:  Private writable source initialized by load() and exposed through codes.
+  PLAIN: Holds selected country codes internally so only store methods can change them.
+
+SelectionStore.add(code: string): void
+  TECH:  Uppercases code, skips duplicates, appends immutably, and calls persist().
+  PLAIN: Adds one country to the saved clock list without duplicates.
+
+SelectionStore.remove(code: string): void
+  TECH:  Uppercases code, filters it from the signal value, and calls persist().
+  PLAIN: Removes one country from the saved clock list.
+
+SelectionStore.has(code: string): boolean
+  TECH:  Performs a case-insensitive membership check against current codes.
+  PLAIN: Reports whether a country's clock has already been selected.
+
+SelectionStore.load(): string[]
+  TECH:  Private helper parsing localStorage JSON, retaining only strings, and
+         uppercasing them; malformed or unavailable storage produces an empty list.
+  PLAIN: Restores safe country selections when the page starts.
+
+SelectionStore.persist(): void
+  TECH:  Private best-effort JSON write of current codes to localStorage.
+  PLAIN: Remembers clock choices for a later visit when browser storage permits it.
+
+== ClockService ==
+
+ClockService.syncing: WritableSignal<boolean>
+  TECH:  Public status signal tracking whether a clock request is active.
+  PLAIN: Lets the page show when clocks are updating.
+
+ClockService.error: WritableSignal<string | null>
+  TECH:  Public status signal containing a stale-data message after sync failure.
+  PLAIN: Lets the page explain that clocks could not refresh.
+
+ClockService.snapshot: WritableSignal<ClockSnapshot | null>
+  TECH:  Private source holding the latest synchronized reference and country list.
+  PLAIN: Keeps the most recent clock data available between backend refreshes.
+
+ClockService.ticker: WritableSignal<number>
+  TECH:  Private counter incremented once per second to invalidate the now computed.
+  PLAIN: Causes every visible clock to advance once per second.
+
+ClockService.countries: Signal<Country[]>
+  TECH:  Computed signal returning snapshot countries or an empty array.
+  PLAIN: Supplies the current selected-country clock rows.
+
+ClockService.referenceUtc: Signal<string | null>
+  TECH:  Computed signal returning the latest backend referenceUtc timestamp.
+  PLAIN: Supplies the last synchronization time shown in the footer.
+
+ClockService.now: Signal<Date>
+  TECH:  Computed from the latest server reference instant plus browser elapsed time;
+         a ticker dependency causes one recomputation per second.
+  PLAIN: Advances all displayed clocks together between backend synchronizations.
+
+ClockService.constructor()
+  TECH:  Creates a selection effect, one-second tick timer, 60-second visible-tab
+         poller, and visibilitychange listener; DestroyRef removes all resources.
+  PLAIN: Starts clock updates and cleans them up when the service is destroyed.
+
+ClockService.refresh(): void
+  TECH:  Public method forcing resync() with current SelectionStore codes.
+  PLAIN: Immediately asks the backend for fresh clock data.
+
+ClockService.resync(codes: string[]): void
+  TECH:  Private method using a local empty snapshot when codes is empty; otherwise
+         calls getClock(), updates status, applies success, or retains stale data and
+         exposes an error message.
+  PLAIN: Refreshes selected clocks without blanking the last known times on failure.
+
+ClockService.applySnapshot(snap: ClockSnapshot): void
+  TECH:  Private helper records server and browser timestamps and updates snapshot.
+  PLAIN: Establishes the reference point used to advance all clocks locally.
+
+== Login and registration ==
+
+Login.form: FormGroup  [features/auth/login/login.ts]
+  TECH:  Non-null reactive form with string email and password controls and required,
+         email, and minimum-length validators.
+  PLAIN: Holds and validates the user's sign-in details.
+
+Login.loading: WritableSignal<boolean>
+  TECH:  Tracks whether a login request is active and blocks duplicate submission.
+  PLAIN: Lets the form show progress and prevents repeated sign-in clicks.
+
+Login.error: WritableSignal<string | null>
+  TECH:  Stores mapped server feedback from the latest failed login request.
+  PLAIN: Holds the sign-in error shown to the user.
+
+Login.showPassword: WritableSignal<boolean>
+  TECH:  Controls whether the password input renders as text or password.
+  PLAIN: Remembers whether the user chose to reveal the password.
+
+Login.togglePassword(): void
+  TECH:  Inverts showPassword.
+  PLAIN: Shows or hides the password text.
+
+Login.getError(fieldName: 'email' | 'password'): string | null
+  TECH:  Maps the first recognized Angular validation error to a user-facing string.
+  PLAIN: Explains how the email or password input must be corrected.
+
+Login.onSubmit(): void
+  TECH:  Marks invalid input touched, prevents duplicate requests, calls login(),
+         routes success to /profile, and maps HTTP errors into screen feedback.
+  PLAIN: Submits valid credentials and either opens the profile or explains failure.
+
+passwordsMatchValidator(group: AbstractControl): ValidationErrors | null
+  TECH:  Returns mismatch when non-empty password and confirmPassword differ.
+  PLAIN: Prevents registration when the two password entries do not match.
+
+Register.form: FormGroup  [features/auth/register/register.ts]
+  TECH:  Non-null reactive form with string email, password, and confirmPassword
+         controls plus field validators and passwordsMatchValidator.
+  PLAIN: Holds and validates the details needed to create an account.
+
+Register.loading: WritableSignal<boolean>
+  TECH:  Tracks whether registration is active and blocks duplicate submission.
+  PLAIN: Lets the form show progress and prevents repeated account-creation clicks.
+
+Register.error: WritableSignal<string | null>
+  TECH:  Stores mapped server feedback from the latest failed registration request.
+  PLAIN: Holds the account-creation error shown to the user.
+
+Register.showPassword: WritableSignal<boolean>
+  TECH:  Controls whether password and confirmation inputs are visible as text.
+  PLAIN: Remembers whether the user chose to reveal the passwords.
+
+Register.passwordValue: WritableSignal<string>
+  TECH:  Private signal updated from password control valueChanges and read by the
+         strength computed.
+  PLAIN: Keeps the password-strength display synchronized with current input.
+
+Register.strength: Signal<PasswordStrength>
+  TECH:  Computed score based on minimum length, lower/uppercase, digits, symbols,
+         and 12-character length, mapped to label/color/percentage metadata.
+  PLAIN: Gives immediate guidance about the password's variety and length.
+
+Register.togglePassword(): void
+  TECH:  Inverts showPassword.
+  PLAIN: Shows or hides both password fields.
+
+Register.getError(fieldName: 'email' | 'password' | 'confirmPassword'): string | null
+  TECH:  Returns mismatch feedback from the form group or maps field validation keys.
+  PLAIN: Explains which registration value needs correction.
+
+Register.onSubmit(): void
+  TECH:  Rejects invalid/duplicate submission, calls register(), routes success to
+         /profile, and maps known server status codes to user messages.
+  PLAIN: Creates a valid account and either opens the profile or explains failure.
+
+== Profile ==
+
+Profile.state: WritableSignal<ViewState>  [features/dashboard/profile/profile.ts]
+  TECH:  Holds exactly one loading, error, or loaded User state.
+  PLAIN: Keeps profile loading, success, and failure displays consistent.
+
+Profile.loadedUser: Signal<User | null>
+  TECH:  Computed projection returning state.user only from the loaded state.
+  PLAIN: Supplies account details after loading succeeds.
+
+Profile.errorMessage: Signal<string | null>
+  TECH:  Computed projection returning state.message only from the error state.
+  PLAIN: Supplies a profile error only when loading fails.
+
+Profile.initial: Signal<string>
+  TECH:  Computes the uppercase first email character or `?` without a loaded User.
+  PLAIN: Provides the letter displayed in the profile avatar.
+
+Profile.roleInfo: Signal<RoleDisplay | null>
+  TECH:  Maps the loaded User role to ROLE_DISPLAY icon and description metadata.
+  PLAIN: Explains the user's permission level on the profile.
+
+Profile.isSuperAdmin: Signal<boolean>
+  TECH:  Compares AuthService.currentRole() with `SuperAdmin`.
+  PLAIN: Reveals audit-log navigation only to SuperAdmins.
+
+Profile.ngOnInit(): void
+  TECH:  Subscribes to getMyProfile(), stores loaded User, ignores interceptor-handled
+         401, and maps other failures into error state.
+  PLAIN: Loads account details when the profile page opens.
+
+Profile.onLogout(): void
+  TECH:  Delegates to AuthService.logout().
+  PLAIN: Signs the user out from the profile page.
+
+Profile.onViewAuditLogs(): void
+  TECH:  Navigates to /audit-logs.
+  PLAIN: Opens the audit tool from the profile page.
+
+Profile.onViewWorldClock(): void
+  TECH:  Navigates to /world-clock.
+  PLAIN: Opens the world clock from the profile page.
+
+== AuditLogs ==
+
+AuditLogs.method: WritableSignal<string>
+  TECH:  Stores the selected HTTP method filter or an empty string.
+  PLAIN: Remembers which request method the user wants to find.
+
+AuditLogs.statusCode: WritableSignal<number | null>
+  TECH:  Stores the exact HTTP status-code filter or null.
+  PLAIN: Remembers which response code the user wants to find.
+
+AuditLogs.actorUserId: WritableSignal<number | null>
+  TECH:  Stores the actor user ID filter or null.
+  PLAIN: Remembers which user's activity should be shown.
+
+AuditLogs.skip: WritableSignal<number>
+  TECH:  Stores the current zero-based query offset in PAGE_SIZE increments.
+  PLAIN: Remembers the current page position.
+
+AuditLogs.state: WritableSignal<ViewState>
+  TECH:  Holds exactly one loading, error, or loaded AuditLog[] state.
+  PLAIN: Keeps table loading, success, and failure displays consistent.
+
+AuditLogs.logs: Signal<AuditLog[]>
+  TECH:  Computed projection returning loaded rows or an empty array.
+  PLAIN: Supplies the records currently displayed in the audit table.
+
+AuditLogs.errorMessage: Signal<string | null>
+  TECH:  Computed projection returning the active error message or null.
+  PLAIN: Supplies feedback when audit records cannot be loaded.
+
+AuditLogs.hasMore: Signal<boolean>
+  TECH:  Returns true when the loaded page contains exactly PAGE_SIZE=150 rows.
+  PLAIN: Enables the next-page control when another page may exist.
+
+AuditLogs.stats: Signal<{ total: number; success: number; redirect: number;
+clientError: number; serverError: number }>
+  TECH:  Counts current page rows into total, 2xx, 3xx, 4xx, and 5xx families.
+  PLAIN: Summarizes only the audit records currently shown.
+
+AuditLogs.ngOnInit(): void
+  TECH:  Angular lifecycle method that calls load() once after component creation.
+  PLAIN: Loads the first audit page when the screen opens.
+
+AuditLogs.load(): void
+  TECH:  Sets loading state, calls getLogs(buildQuery()), then stores API success or
+         maps non-401 failures into error state.
+  PLAIN: Fetches the active filtered page and updates the table.
+
+AuditLogs.buildQuery(): AuditLogQuery
+  TECH:  Private snapshot of current filter, skip, and fixed PAGE_SIZE=150 signals.
+  PLAIN: Converts visible filters into the backend request.
+
+AuditLogs.applyFilters(): void
+  TECH:  Resets skip to zero and calls load() with current filter signals.
+  PLAIN: Runs the selected search from its first page.
+
+AuditLogs.clearFilters(): void
+  TECH:  Resets all filter and offset signals before calling load().
+  PLAIN: Returns to the unfiltered first page.
+
+AuditLogs.nextPage(): void
+  TECH:  Increments skip by PAGE_SIZE=150 and calls load().
+  PLAIN: Opens the next page of audit results.
+
+AuditLogs.prevPage(): void
+  TECH:  Decrements skip by PAGE_SIZE, clamps it at zero, and calls load().
+  PLAIN: Opens the previous page of audit results.
+
+AuditLogs.statusClass(code: number): string
+  TECH:  Maps HTTP status to status-2xx, status-3xx, status-4xx, or status-5xx CSS.
+  PLAIN: Gives successful and failed requests distinct colors.
+
+AuditLogs.onBack(): void
+  TECH:  Navigates to /profile.
+  PLAIN: Returns from audit logs to the profile.
+
+AuditLogs.onLogout(): void
+  TECH:  Delegates to AuthService.logout().
+  PLAIN: Ends the session from the audit screen.
+
+== WorldClockPage ==
+
+WorldClockPage.showSearch: WritableSignal<boolean>
+  TECH:  Initializes from world-clock.showSearch with a true fallback.
+  PLAIN: Remembers whether the country search should be visible.
+
+WorldClockPage.showGrid: WritableSignal<boolean>
+  TECH:  Initializes from world-clock.showGrid with a false fallback.
+  PLAIN: Remembers whether the timezone grid should be visible.
+
+WorldClockPage.hovered: WritableSignal<Country | null>
+  TECH:  Holds API-enriched details for the map country currently under the cursor.
+  PLAIN: Supplies the country shown in the hover detail panel.
+
+WorldClockPage.isAuthenticated: Signal<boolean>
+  TECH:  Read-only alias of AuthService.isAuthenticated used by the page template.
+  PLAIN: Controls which account actions the clock page displays.
+
+WorldClockPage.toggleSearch(): void
+  TECH:  Inverts showSearch and persists it through savePref().
+  PLAIN: Shows or hides country search and remembers the choice.
+
+WorldClockPage.toggleGrid(): void
+  TECH:  Inverts showGrid and persists it through savePref().
+  PLAIN: Shows or hides the timezone grid and remembers the choice.
+
+WorldClockPage.onAdd(code: string): void
+  TECH:  Delegates to SelectionStore.add(); ClockService's effect triggers resync.
+  PLAIN: Adds a saved country clock.
+
+WorldClockPage.onRemove(code: string): void
+  TECH:  Delegates to SelectionStore.remove(); ClockService's effect triggers resync.
+  PLAIN: Removes a saved country clock.
+
+WorldClockPage.onHover(code: string | null): void
+  TECH:  Clears null hovers, reuses a Map cache, or calls getCountry(); pendingCode
+         prevents a late response from replacing a newer hover.
+  PLAIN: Loads hover details without repeated requests or flicker from slow responses.
+
+WorldClockPage.onProfile(): void
+  TECH:  Navigates to /profile.
+  PLAIN: Leaves the clock page for the profile.
+
+WorldClockPage.onLogout(): void
+  TECH:  Delegates to AuthService.logout().
+  PLAIN: Ends the session from the clock page.
+
+WorldClockPage.loadPref(key: string, fallback: boolean): boolean
+  TECH:  Private best-effort boolean localStorage reader using the `world-clock.` key
+         prefix and a caller-provided fallback.
+  PLAIN: Restores a display choice without failing when browser storage is blocked.
+
+WorldClockPage.savePref(key: string, value: boolean): void
+  TECH:  Private best-effort boolean localStorage writer using the `world-clock.` key
+         prefix.
+  PLAIN: Remembers a display choice when browser storage is available.
+
+== World-clock child components ==
+
+SearchBar.add: OutputEmitterRef<string>
+  TECH:  Emits a country code after a Material autocomplete selection.
+  PLAIN: Tells the parent page which country the user chose.
+
+SearchBar.query: FormControl<string>
+  TECH:  Non-null reactive control whose valueChanges drives debounced search.
+  PLAIN: Holds the text entered into country search.
+
+SearchBar.results: WritableSignal<Country[]>
+  TECH:  Stores the latest successful country autocomplete results.
+  PLAIN: Supplies the matching countries shown below the search box.
+
+SearchBar.searching: WritableSignal<boolean>
+  TECH:  Tracks whether a non-empty autocomplete request is active.
+  PLAIN: Lets the search box show that results are loading.
+
+SearchBar.constructor()
+  TECH:  Pipes valueChanges through 250 ms debounce, trim, distinctUntilChanged,
+         searchCountries(limit=8), empty-list recovery, and takeUntilDestroyed().
+  PLAIN: Searches after typing pauses and safely cancels old searches.
+
+SearchBar.onSelected(event: MatAutocompleteSelectedEvent): void
+  TECH:  Emits the selected code and clears query and results.
+  PLAIN: Adds the chosen country and resets the search box.
+
+ClockList.countries: InputSignal<Country[]>
+  TECH:  Component input with an empty-array default.
+  PLAIN: Supplies the countries displayed in the saved clock list.
+
+ClockList.now: InputSignal<Date>
+  TECH:  Required component input carrying ClockService's shared current instant.
+  PLAIN: Supplies one common current time to every clock row.
+
+ClockList.remove: OutputEmitterRef<string>
+  TECH:  Component output forwarding the country code to remove.
+  PLAIN: Tells the parent which saved clock the user removed.
+
+ClockListItem.country: InputSignal<Country>
+  TECH:  Required component input containing one country's timezone metadata.
+  PLAIN: Supplies the country displayed by one clock row.
+
+ClockListItem.now: InputSignal<Date>
+  TECH:  Required component input containing the shared current instant.
+  PLAIN: Supplies the time reference for one clock row.
+
+ClockListItem.remove: OutputEmitterRef<string>
+  TECH:  Component output emitting the row's country code on removal.
+  PLAIN: Tells the list that this clock should be removed.
+
+ClockListItem.localTime: Signal<string>
+  TECH:  Computed Intl.DateTimeFormat output in country.timezone with 24-hour seconds.
+  PLAIN: Shows the selected country's live local time.
+
+DetailPanel.country: InputSignal<Country | null>
+  TECH:  Component input with a null default for the hovered country.
+  PLAIN: Supplies details for whichever map country is being hovered.
+
+DetailPanel.now: InputSignal<Date>
+  TECH:  Required component input containing the shared current instant.
+  PLAIN: Supplies the time reference for hover details.
+
+DetailPanel.localTime: Signal<string | null>
+  TECH:  Computed zoned time matching ClockListItem or null without a country.
+  PLAIN: Shows the hovered country's live local time when available.
+
+WorldClockFooter.referenceUtc: InputSignal<string | null>
+  TECH:  Component input with a null default for the latest server timestamp.
+  PLAIN: Supplies the timestamp of the latest clock synchronization.
+
+WorldClockFooter.lastUpdated: Signal<string | null>
+  TECH:  Computed localized date-time label that rejects absent or invalid dates.
+  PLAIN: Shows a readable update time only when the backend value is valid.
+
+== WorldMap ==
+
+WorldMap.selectedCodes: InputSignal<string[]>
+  TECH:  Component input with an empty default for selected country codes.
+  PLAIN: Tells the map which saved countries to highlight.
+
+WorldMap.showGrid: InputSignal<boolean>
+  TECH:  Component input with a false default controlling timezone-band visibility.
+  PLAIN: Tells the map whether to draw the timezone grid.
+
+WorldMap.now: InputSignal<Date>
+  TECH:  Component input with a creation-time default used for UTC-band labels.
+  PLAIN: Supplies the current instant used by timezone labels.
+
+WorldMap.hover: OutputEmitterRef<string | null>
+  TECH:  Emits a debounced country code or null after map pointer movement.
+  PLAIN: Tells the page which country the user is exploring.
+
+WorldMap.select: OutputEmitterRef<string>
+  TECH:  Emits a non-null country code when a recognized map shape is clicked.
+  PLAIN: Tells the page which country clock the user wants to add.
+
+WorldMap.shapes: WritableSignal<MapShape[]>
+  TECH:  Stores projected SVG paths built from the loaded GeoJSON collection.
+  PLAIN: Supplies the country outlines drawn on the map.
+
+WorldMap.hovered: WritableSignal<string | null>
+  TECH:  Stores the code currently highlighted immediately under the pointer.
+  PLAIN: Highlights the country beneath the pointer without waiting for API details.
+
+WorldMap.bands: Signal<TimeZoneBand[]>
+  TECH:  Computes 24 whole-hour longitude bands from UTC-12 through UTC+11 when
+         showGrid is true, otherwise returns an empty array.
+  PLAIN: Supplies current labels and lines for the optional timezone grid.
+
+WorldMap.selectedSet: Signal<Set<string>>
+  TECH:  Private computed set of uppercased selectedCodes used for fast map lookups.
+  PLAIN: Lets the map quickly decide which countries should appear selected.
+
+WorldMap.constructor()
+  TECH:  GETs /world.geojson with takeUntilDestroyed(), transforms success through
+         buildShapes(), and uses an empty shape list on failure.
+  PLAIN: Loads the local map when the component starts.
+
+WorldMap.isSelected(code: string | null): boolean
+  TECH:  Checks a computed uppercase Set while safely rejecting null country codes.
+  PLAIN: Determines which map countries should be highlighted as saved.
+
+WorldMap.onEnter(shape: MapShape): void
+  TECH:  Updates immediate hover state and schedules the shape's debounced code.
+  PLAIN: Begins showing details when the pointer enters a country.
+
+WorldMap.onLeave(): void
+  TECH:  Clears immediate hover state and schedules a debounced null hover output.
+  PLAIN: Removes country details after the pointer leaves the map.
+
+WorldMap.onClick(shape: MapShape): void
+  TECH:  Emits shape.code through select when the code is non-null.
+  PLAIN: Adds a clock when the user clicks a recognized country.
+
+WorldMap.scheduleHover(code: string | null): void
+  TECH:  Private method replacing the prior timeout and emitting after 100 ms.
+  PLAIN: Avoids excessive API lookups while the pointer moves quickly across borders.
+
+WorldMap.buildShapes(geo: FeatureCollection): MapShape[]
+  TECH:  Private Polygon/MultiPolygon flattener that normalizes ISO codes, builds SVG
+         path strings, assigns deterministic shades, and removes empty paths.
+  PLAIN: Converts geographic country data into shapes the browser can draw.
+
+WorldMap.ringToPath(ring: Ring): string
+  TECH:  Private equirectangular projection from longitude/latitude into a 1000x500
+         SVG viewBox, returning a closed path or empty string.
+  PLAIN: Converts one country outline from earth coordinates to screen coordinates.
+
+WorldMap.shadeFor(key: string): number
+  TECH:  Private deterministic 31-based unsigned hash returning one of five shades.
+  PLAIN: Gives neighboring map shapes visual variety without storing extra color data.
+
+== HTTP API and storage summary ==
+
+API base URL
+  TECH:  Active imports use environment.apiUrl, currently
+         http://127.0.0.1:8000/api/v1 in every build configuration.
+  PLAIN: The application currently expects a backend running locally on port 8000.
+
+Backend endpoints
+  TECH:  POST /login, /refresh-token, /logout, /users/register; GET
+         /users/myprofile, /audit-logs, /countries, /countries/{code}, and /clock.
+  PLAIN: These backend operations support accounts, profiles, audits, countries, and
+         synchronized clocks.
+
+Browser storage keys
+  TECH:  access_token, refresh_token, world-clock.codes.v1,
+         world-clock.showSearch, and world-clock.showGrid.
+  PLAIN: The browser remembers the session, selected countries, and two display
+         preferences.

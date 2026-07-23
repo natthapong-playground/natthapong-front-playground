@@ -1,18 +1,30 @@
-# natthapong-front-playground details
+# Developer Command Reference
 
-<!-- bash terminal -->
-ng serve
+The full project guide is in [`README.md`](README.md). Run application commands from
+`frontend-playground/`.
 
-<!-- Setup Angualr-->
-npm install -g @angular/cli
+## Install and Start
 
-ng new frontend-playground --routing --style=css
+```bash
+npm ci
+npm start
+```
 
-<!-- docker -->
-docker compose down
-docker compose up -d
+Open `http://localhost:4200/`. A global Angular CLI installation is not required.
 
-<!-- Material UI -->
-ng add @angular/material
+## Build and Test
 
+```bash
+npm run build
+npm test
+```
 
+## Docker
+
+```bash
+docker build -t natthapong-frontend .
+docker run --rm -p 8080:80 natthapong-frontend
+```
+
+Open `http://localhost:8080/`. This repository does not currently contain a Docker
+Compose file.
