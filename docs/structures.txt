@@ -1,0 +1,164 @@
+# Frontend Structure
+
+SCOPE
+  TECH:  This map covers tracked source and configuration under frontend-playground/.
+         It excludes node_modules/, dist/, and .angular/cache because they are
+         installed or generated artifacts.
+  PLAIN: This is the maintained map of the frontend; temporary build files are left
+         out because they can be recreated.
+
+TREE INDEX
+  TECH:  Each tracked path appears below with a compact one-line responsibility;
+         files.txt provides the full dual-format explanation for every file.
+  PLAIN: Use this as a quick map, then open files.txt when you need more detail.
+
+frontend-playground/                              - Angular application root
+|-- .editorconfig                                - Shared editor defaults
+|-- .gitignore                                   - Generated-file exclusions
+|-- .prettierrc                                  - Prettier preferences
+|-- Dockerfile                                   - Node build and Nginx runtime
+|-- README.md                                    - Application quick-start guide
+|-- angular.json                                 - Angular build/test configuration
+|-- package.json                                 - npm scripts and dependencies
+|-- package-lock.json                            - Locked dependency graph
+|-- tsconfig.json                                - Shared TypeScript settings
+|-- tsconfig.app.json                            - Browser compilation settings
+|-- tsconfig.spec.json                           - Test compilation settings
+|-- public/                                      - Assets copied as-is
+|   |-- backgrounds/                             - Authentication visuals
+|   |   `-- auth-bg.gif                          - Animated auth background
+|   |-- favicon.ico                              - Unlinked legacy icon
+|   |-- logo_n.png                               - Active browser favicon
+|   `-- world.geojson                            - Country geometry data
+`-- src/                                         - Application source
+    |-- index.html                               - Browser host document
+    |-- main.ts                                  - Standalone bootstrap
+    |-- material-theme.scss                      - Angular Material theme
+    |-- styles.css                               - Global styles
+    |-- environments/                            - API build settings
+    |   |-- environment.ts                       - Active local API URL
+    |   `-- environment.prod.ts                  - Unwired production placeholder
+    `-- app/                                     - Angular application code
+        |-- app.ts                               - Root component
+        |-- app.html                             - Root router outlet
+        |-- app.css                              - Root styles
+        |-- app.spec.ts                          - Root unit test
+        |-- app.config.ts                        - Root providers
+        |-- app.routes.ts                        - Lazy route table
+        |-- core/                                - Shared data and security logic
+        |   |-- guards/                          - Navigation authorization
+        |   |   `-- auth.guard.ts                - Guest, auth, and role guards
+        |   |-- interceptors/                    - HTTP request handling
+        |   |   `-- auth.interceptor.ts          - Bearer and refresh handling
+        |   |-- models/                          - Backend data contracts
+        |   |   |-- audit-log.model.ts           - Audit record/query types
+        |   |   |-- auth.model.ts                - Token/JWT types
+        |   |   |-- country.model.ts             - Country/clock types
+        |   |   `-- user.model.ts                - User/role types
+        |   `-- services/                        - Shared API and state services
+        |       |-- audit.service.ts             - Audit-log API client
+        |       |-- auth.service.ts              - Session lifecycle
+        |       |-- clock.service.ts             - Shared clock synchronization
+        |       |-- country-api.service.ts       - Country/clock API client
+        |       |-- selection-store.service.ts   - Saved country selections
+        |       `-- user.service.ts              - Profile API client
+        `-- features/                            - User-facing screens
+            |-- auth/                            - Signed-out screens
+            |   |-- login/                       - Sign-in feature
+            |   |   |-- login.ts                 - Login component logic
+            |   |   |-- login.html               - Login template
+            |   |   |-- login.css                - Login styles
+            |   |   `-- login.spec.ts            - Login unit test
+            |   `-- register/                    - Account-creation feature
+            |       |-- register.ts              - Registration logic
+            |       |-- register.html            - Registration template
+            |       |-- register.css             - Registration styles
+            |       `-- register.spec.ts         - Registration unit test
+            `-- dashboard/                       - Authenticated screens
+                |-- profile/                     - Account summary feature
+                |   |-- profile.ts               - Profile logic
+                |   |-- profile.html             - Profile template
+                |   |-- profile.css              - Profile styles
+                |   `-- profile.spec.ts          - Profile unit test
+                |-- audit-logs/                  - SuperAdmin audit feature
+                |   |-- audit-logs.ts            - Audit logic and paging
+                |   |-- audit-logs.html          - Audit table template
+                |   |-- audit-logs.css           - Audit styles
+                |   `-- audit-logs.spec.ts       - Audit unit test
+                `-- world-clock/                 - Interactive clock feature
+                    |-- world-clock-page/         - Composed full-screen page
+                    |   |-- world-clock-page.ts   - Page coordination logic
+                    |   |-- world-clock-page.html - Page composition template
+                    |   |-- world-clock-page.css  - Page overlay styles
+                    |   `-- world-clock-page.spec.ts - Page unit test
+                    |-- search-bar/               - Country autocomplete
+                    |   |-- search-bar.ts         - Debounced search logic
+                    |   |-- search-bar.html       - Search template
+                    |   |-- search-bar.css        - Search styles
+                    |   `-- search-bar.spec.ts    - Search unit test
+                    |-- clock-list/               - Selected-clock collection
+                    |   |-- clock-list.ts         - List inputs/outputs
+                    |   |-- clock-list.html       - List template
+                    |   |-- clock-list.css        - List styles
+                    |   `-- clock-list.spec.ts    - List unit test
+                    |-- clock-list-item/          - One country clock
+                    |   |-- clock-list-item.ts    - Zoned-time computation
+                    |   |-- clock-list-item.html  - Clock-row template
+                    |   |-- clock-list-item.css   - Clock-row styles
+                    |   `-- clock-list-item.spec.ts - Clock-row unit test
+                    |-- world-map/                - SVG country map
+                    |   |-- world-map.ts          - Projection and interaction
+                    |   |-- world-map.html        - SVG template
+                    |   |-- world-map.css         - Map styles
+                    |   `-- world-map.spec.ts     - Map unit test
+                    |-- detail-panel/             - Hovered-country details
+                    |   |-- detail-panel.ts       - Hover time computation
+                    |   |-- detail-panel.html     - Detail template
+                    |   |-- detail-panel.css      - Detail styles
+                    |   `-- detail-panel.spec.ts  - Detail unit test
+                    `-- footer/                   - Synchronization timestamp
+                        |-- footer.ts              - Timestamp formatting
+                        |-- footer.html            - Footer template
+                        |-- footer.css             - Footer styles
+                        `-- footer.spec.ts         - Footer unit test
+
+APPLICATION ROOT
+  TECH:  src/main.ts bootstraps the standalone App component with appConfig. App
+         renders RouterOutlet, and app.routes.ts lazy-loads every page component.
+  PLAIN: The browser starts one Angular application and displays the page selected
+         by the current URL.
+
+CORE AREA
+  TECH:  src/app/core centralizes shared API contracts, HTTP services, route guards,
+         the JWT interceptor, clock synchronization, and persisted selections.
+  PLAIN: Shared security and data logic lives in one place so pages do not duplicate
+         it.
+
+AUTH FEATURES
+  TECH:  src/app/features/auth contains standalone reactive-form pages for login and
+         registration; guestGuard prevents authenticated users reopening them.
+  PLAIN: Signed-out users can sign in or create an account here.
+
+DASHBOARD FEATURES
+  TECH:  src/app/features/dashboard contains authenticated profile, SuperAdmin audit
+         logs, and the composed world-clock feature.
+  PLAIN: Signed-in users can view their account and clocks, while SuperAdmins also
+         receive an audit tool.
+
+WORLD CLOCK COMPOSITION
+  TECH:  WorldClockPage coordinates SearchBar, ClockList, ClockListItem, WorldMap,
+         DetailPanel, and WorldClockFooter with ClockService and SelectionStore.
+  PLAIN: The world-clock page combines search, a clickable map, saved clocks, hover
+         details, and synchronization status into one screen.
+
+PUBLIC ASSETS
+  TECH:  public/ is copied unchanged by Angular. world.geojson drives SVG paths;
+         the remaining files provide branding and authentication visuals.
+  PLAIN: These are the images and map data downloaded directly by the browser.
+
+ROUTE STRUCTURE
+  TECH:  /login and /register use guestGuard; /profile and /world-clock use
+         authGuard; /audit-logs also requires roleGuard('SuperAdmin'). Empty and
+         wildcard paths redirect to /profile.
+  PLAIN: Visitors must sign in for dashboard pages, and only SuperAdmins can inspect
+         audit logs.

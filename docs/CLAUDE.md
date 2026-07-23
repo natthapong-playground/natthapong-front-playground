@@ -27,9 +27,8 @@ these files stale is considered incomplete.
 | `methods.txt`    | every meaningful method / function / signal: signature + behaviour |
 | `logs.txt`       | a dated changelog of what changed and why (newest at top)          |
 
-> `structures.txt` here documents the **frontend app** (`frontend-playground/`).
-> The repo-root `structures.txt` is the older cross-repo blueprint; this folder
-> supersedes it for day-to-day frontend work.
+> `structures.txt` here documents the **frontend app** (`frontend-playground/`) and
+> is the source of truth for day-to-day frontend work.
 
 ---
 
@@ -52,6 +51,11 @@ NAME            <symbol / file / route>
 
 Keep both lines in sync. If you can't write the PLAIN line without jargon, the
 code is probably doing too much — say so in `logs.txt`.
+
+`structures.txt` may include a compact tree index using `path - one-line purpose`
+for each item. The tree is an index, not a set of standalone entries; its surrounding
+section and all explanatory entries below it still use the TECH/PLAIN format. The
+full dual-format responsibility for each file remains in `files.txt`.
 
 ---
 

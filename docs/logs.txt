@@ -1,0 +1,12 @@
+# Documentation Changelog
+
+2026-07-23 - Restore the documentation baseline and GitHub project guide
+  TECH:  Added README.txt, structures.txt, files.txt, methods.txt, and logs.txt from
+         the current Angular 21 source tree; added !docs/*.txt to the root ignore
+         rules; expanded root and frontend README files; replaced stale DETAILS.md
+         commands; corrected CLAUDE.md to identify the existing structure source of
+         truth and clarify compact tree indexes. No application runtime behavior
+         changed.
+  PLAIN: The repository now explains what the app does, how to run it, how its files
+         fit together, and what still needs work. The documentation can also be
+         committed normally instead of being hidden by Git.
