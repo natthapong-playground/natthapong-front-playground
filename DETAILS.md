@@ -1,20 +1,34 @@
 # Developer Command Reference
 
-The full project guide is in [`README.md`](README.md). Run application commands from
-`frontend-playground/`.
+The full project guide is in [`README.md`](README.md).
 
-## Install and Start
+## Isolated Windows Setup
+
+Run these from the repository root. They use only the ignored project-local `.venv/`
+tool directory and `frontend-playground/node_modules/`.
+
+```bat
+setup.bat
+start.bat
+```
+
+Open `http://localhost:4200/`. No global Node.js, npm, Python, or Angular CLI
+installation is required.
+
+## Manual Setup
+
+On non-Windows systems with Node.js 22.12+ and npm 11 already available:
 
 ```bash
+cd frontend-playground
 npm ci
 npm start
 ```
 
-Open `http://localhost:4200/`. A global Angular CLI installation is not required.
-
 ## Build and Test
 
 ```bash
+cd frontend-playground
 npm run build
 npm test
 ```

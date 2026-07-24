@@ -6,6 +6,17 @@ architecture, routes, backend requirements, Docker notes, and known limitations.
 
 ## Quick Start
 
+On Windows, run the isolated root scripts from this directory:
+
+```bat
+..\setup.bat
+..\start.bat
+```
+
+These scripts keep Node.js, npm, the npm cache, and packages inside the repository.
+No global installation is required. For manual or non-Windows setup with Node.js
+22.12+ and npm 11 already installed:
+
 ```bash
 npm ci
 npm start

@@ -1,9 +1,28 @@
 # Frontend File Responsibilities
 
 SCOPE
-  TECH:  Entries cover every tracked file under frontend-playground/ as of
-         2026-07-23. Generated and installed directories are excluded.
-  PLAIN: Every frontend file committed to Git is explained below.
+  TECH:  Entries cover root runtime scripts and every tracked file under
+         frontend-playground/ as of 2026-07-24. Generated and installed directories
+         are excluded.
+  PLAIN: Every frontend file and Windows run helper committed to Git is explained
+         below.
+
+== Repository runtime helpers ==
+
+setup.bat
+  TECH:  Detects Windows architecture; downloads pinned Node.js 22.23.1 into .venv/;
+         verifies the official SHA-256; installs npm 11.11.0 and its cache locally;
+         scopes npm, temporary, home, and node-gyp paths locally; runs npm ci against
+         frontend-playground/package-lock.json; and records the lockfile fingerprint.
+  PLAIN: Sets up all Windows tools and packages inside this project without a global
+         installation.
+
+start.bat
+  TECH:  Selects the architecture-specific .venv Node toolchain, runs setup.bat when
+         tools or Angular CLI packages are absent or the lockfile fingerprint changed,
+         scopes writable tool paths locally, and forwards optional arguments to npm
+         start from frontend-playground/.
+  PLAIN: Starts the development website and automatically runs setup when needed.
 
 == Project configuration ==
 
@@ -37,8 +56,8 @@ frontend-playground/angular.json
   PLAIN: Tells Angular how to build, run, and test the application.
 
 frontend-playground/package.json
-  TECH:  Declares npm scripts, Angular 21 runtime packages, Material/CDK, RxJS,
-         TypeScript, Prettier, jsdom, and Vitest dependencies.
+  TECH:  Declares npm scripts, patched Angular 21 runtime/build packages,
+         Material/CDK, RxJS, TypeScript, Prettier, jsdom, and Vitest dependencies.
   PLAIN: Lists the tools and libraries required by the frontend.
 
 frontend-playground/package-lock.json
@@ -121,9 +140,9 @@ frontend-playground/src/app/app.css
   PLAIN: Is available for styles that belong only to the app shell.
 
 frontend-playground/src/app/app.spec.ts
-  TECH:  Contains generated root-component unit tests; its heading assertion does
-         not match the current router-only template.
-  PLAIN: Is an early test file that needs updating before it reliably tests the app.
+  TECH:  Provides an empty test router and verifies App construction plus its
+         router-outlet shell.
+  PLAIN: Checks that the application starts with a place for routed pages to appear.
 
 frontend-playground/src/app/app.config.ts
   TECH:  Registers browser error listeners, Router providers, HttpClient, and the
@@ -210,8 +229,8 @@ frontend-playground/src/app/features/auth/login/login.css
   PLAIN: Makes the sign-in screen readable and responsive.
 
 frontend-playground/src/app/features/auth/login/login.spec.ts
-  TECH:  Contains the generated Login component construction test.
-  PLAIN: Provides a starting point for sign-in tests but not full behavior coverage.
+  TECH:  Provides HttpClient and an empty router, then tests Login construction.
+  PLAIN: Checks that the sign-in screen can start with its required services.
 
 frontend-playground/src/app/features/auth/register/register.ts
   TECH:  Implements registration validation, password matching and strength,
@@ -228,8 +247,8 @@ frontend-playground/src/app/features/auth/register/register.css
   PLAIN: Makes the registration screen clear and usable.
 
 frontend-playground/src/app/features/auth/register/register.spec.ts
-  TECH:  Contains the generated Register component construction test.
-  PLAIN: Provides a starting point for registration tests but limited coverage.
+  TECH:  Provides HttpClient and an empty router, then tests Register construction.
+  PLAIN: Checks that the registration screen can start with its required services.
 
 == Profile feature ==
 
@@ -347,8 +366,9 @@ frontend-playground/src/app/features/dashboard/world-clock/clock-list-item/clock
   PLAIN: Makes each saved country's information easy to scan.
 
 frontend-playground/src/app/features/dashboard/world-clock/clock-list-item/clock-list-item.spec.ts
-  TECH:  Contains the generated ClockListItem component construction test.
-  PLAIN: Provides a starting point for clock-row tests but limited coverage.
+  TECH:  Supplies required Country and Date inputs and tests ClockListItem
+         construction.
+  PLAIN: Checks that one clock row can start with realistic country and time data.
 
 == World map and hover details ==
 
@@ -402,6 +422,6 @@ frontend-playground/src/app/features/dashboard/world-clock/footer/footer.css
   PLAIN: Keeps update information visible without distracting from the map.
 
 frontend-playground/src/app/features/dashboard/world-clock/footer/footer.spec.ts
-  TECH:  Contains a stale generated test that imports Footer although the component
-         class is named WorldClockFooter.
-  PLAIN: Is an outdated test file that must be corrected before the suite is reliable.
+  TECH:  Imports WorldClockFooter and contains its standalone component construction
+         test.
+  PLAIN: Checks that the world-clock update footer can be created successfully.

@@ -1,5 +1,24 @@
 # Frontend Methods, Signals, Routes, and APIs
 
+== Windows project scripts ==
+
+setup.bat
+  TECH:  Validates the checkout, maps x64/ARM64/x86 to pinned Node.js archive hashes,
+         downloads and verifies Node.js 22.23.1 under .venv/, installs npm 11.11.0
+         there, scopes npm cache/config, temp, home, and node-gyp data to .venv/, runs
+         npm ci in frontend-playground/, and stores the package-lock.json SHA-256;
+         any failed stage returns a nonzero exit code.
+  PLAIN: Prepares the Windows project without installing tools globally and directs
+         its setup files and working data into the repository's ignored local folder.
+
+start.bat [Angular serve options]
+  TECH:  Finds the architecture-specific local Node executable, bootstraps missing
+         tools or lockfile-stale dependencies through setup.bat, scopes writable tool
+         paths under .venv/, prepends only that Node directory to the process PATH,
+         and forwards arguments to npm start.
+  PLAIN: Starts the website with the isolated tools and can accept options such as a
+         different port.
+
 == Bootstrap and routes ==
 
 bootstrapApplication(App, appConfig)  [src/main.ts]

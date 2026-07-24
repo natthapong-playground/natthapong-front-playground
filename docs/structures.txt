@@ -1,17 +1,19 @@
 # Frontend Structure
 
 SCOPE
-  TECH:  This map covers tracked source and configuration under frontend-playground/.
-         It excludes node_modules/, dist/, and .angular/cache because they are
-         installed or generated artifacts.
-  PLAIN: This is the maintained map of the frontend; temporary build files are left
-         out because they can be recreated.
+  TECH:  This map covers root Windows operation scripts plus tracked source and
+         configuration under frontend-playground/. It excludes .venv/, node_modules/,
+         dist/, and .angular/cache because they are installed or generated artifacts.
+  PLAIN: This is the maintained map of the frontend and its Windows launch tools;
+         temporary and downloaded files are left out because they can be recreated.
 
 TREE INDEX
   TECH:  Each tracked path appears below with a compact one-line responsibility;
          files.txt provides the full dual-format explanation for every file.
   PLAIN: Use this as a quick map, then open files.txt when you need more detail.
 
+setup.bat                                         - Isolated Windows setup
+start.bat                                         - Isolated Windows development launch
 frontend-playground/                              - Angular application root
 |-- .editorconfig                                - Shared editor defaults
 |-- .gitignore                                   - Generated-file exclusions
@@ -162,3 +164,10 @@ ROUTE STRUCTURE
          wildcard paths redirect to /profile.
   PLAIN: Visitors must sign in for dashboard pages, and only SuperAdmins can inspect
          audit logs.
+
+WINDOWS TOOL ENVIRONMENT
+  TECH:  Root setup.bat installs checksummed Node.js 22.23.1 and npm 11.11.0 under
+         ignored .venv/, then runs npm ci; start.bat uses only that toolchain to run
+         the local Angular CLI from frontend-playground/node_modules/.
+  PLAIN: Windows users can set up and start the project without changing software
+         installed elsewhere on their computer.

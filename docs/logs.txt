@@ -1,5 +1,20 @@
 # Documentation Changelog
 
+2026-07-24 - Prepare isolated Windows setup and public repository hygiene
+  TECH:  Added setup.bat and start.bat with a SHA-256-verified Node.js 22.23.1 and
+         npm 11.11.0 toolchain contained by .venv/; expanded secret and credential
+         ignore rules; localized npm configuration/cache, temporary, home, and
+         node-gyp paths; added stale-lockfile detection; updated Angular 21
+         dependencies to patched compatible releases;
+         corrected footer.spec.ts to use WorldClockFooter; repaired root, auth, and
+         clock-row test fixtures to match current templates and required providers or
+         inputs; and expanded setup, security, backend, and manual-platform guidance.
+         A repository and reachable history scan found no matching committed
+         credentials or private keys.
+  PLAIN: Windows users can now set up and start the app without installing tools on
+         the rest of their computer. The public project is safer, clearer to install,
+         and its previously stale generated tests now match the current components.
+
 2026-07-23 - Restore the documentation baseline and GitHub project guide
   TECH:  Added README.txt, structures.txt, files.txt, methods.txt, and logs.txt from
          the current Angular 21 source tree; added !docs/*.txt to the root ignore

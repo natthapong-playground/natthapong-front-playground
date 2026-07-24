@@ -32,6 +32,8 @@ progress and currently expects a separate backend API.
 
 ```text
 .
+|-- setup.bat                Install an isolated Windows toolchain and dependencies
+|-- start.bat                Start the app with the isolated Windows toolchain
 |-- frontend-playground/     Angular application and container definition
 |   |-- public/              Static images and world map GeoJSON
 |   `-- src/
@@ -47,29 +49,68 @@ See [`docs/structures.txt`](docs/structures.txt) for the complete application ma
 [`docs/files.txt`](docs/files.txt) for file responsibilities, and
 [`docs/methods.txt`](docs/methods.txt) for routes and behavior.
 
-## Prerequisites
+## Windows Setup (Recommended)
 
-- [Node.js 22](https://nodejs.org/)
-- npm 11 (the project records `npm@11.11.0`)
-- A compatible backend available at `http://127.0.0.1:8000/api/v1`
+Requirements:
+
+- Windows 10 or 11
+- Windows PowerShell 5.1 or newer (included with supported Windows versions)
+- An internet connection for the first setup
+- Git, only when cloning instead of downloading the GitHub ZIP
+
+Node.js, npm, Python, a Python virtual environment, and a global Angular CLI are
+not required. From the repository root, run:
+
+```bat
+setup.bat
+start.bat
+```
+
+Open `http://localhost:4200/`. `start.bat` also accepts Angular development-server
+options, for example:
+
+```bat
+start.bat --port 4300 --open
+```
+
+`setup.bat` downloads Node.js 22.23.1 from nodejs.org, verifies its SHA-256 hash,
+and stores it under the ignored `.venv/` directory. It installs npm 11.11.0 into
+that same directory, keeps npm's cache there, and installs the locked application
+packages into `frontend-playground/node_modules/`. Nothing is installed globally.
+Re-run `setup.bat` whenever `package-lock.json` changes. Delete `.venv/` and
+`frontend-playground/node_modules/` if you want to remove all local setup artifacts.
+
+The `.venv` name is used for the project-local Node toolchain. This is an Angular
+project, so a Python virtual environment would not isolate the dependencies it
+actually uses.
+
+## Clone And Run
 
 The backend is not included in this repository. It must implement the API contract
-listed below for all screens to work.
+listed below and be available at `http://127.0.0.1:8000/api/v1` for all screens to
+work.
 
-## Local Setup
-
-```bash
+```bat
 git clone https://github.com/natthapong-playground/natthapong-front-playground.git
-cd natthapong-front-playground/frontend-playground
-npm ci
-npm start
+cd natthapong-front-playground
+setup.bat
+start.bat
 ```
 
 Open `http://localhost:4200/`. The Angular development server reloads when source
 files change.
 
-The Angular CLI is installed as a project dependency, so a global `ng` installation
-is not required when using the npm scripts.
+## Manual Setup (Other Platforms)
+
+Install Node.js 22.12 or newer and npm 11, then run:
+
+```bash
+cd frontend-playground
+npm ci
+npm start
+```
+
+The Angular CLI remains a project dependency. Do not install `ng` globally.
 
 ## Available Commands
 
@@ -83,6 +124,10 @@ Run these commands from `frontend-playground/`:
 | `npm test` | Run the Vitest unit-test suite |
 
 Linting and end-to-end testing are not currently configured.
+
+Windows users can run these commands with the isolated toolchain after `setup.bat`
+by using `..\.venv\node-v22.23.1-win-<architecture>\npm.cmd` from
+`frontend-playground/`. `start.bat` provides the normal development shortcut.
 
 ## Application Routes
 
@@ -129,6 +174,9 @@ Before deploying, configure a production API URL and add an Angular production f
 replacement or another runtime configuration strategy. The current `angular.json`
 does not replace `environment.ts`, so production builds still use the local URL.
 
+Frontend environment files are compiled into browser-readable JavaScript. Never put
+passwords, API secrets, private keys, or private tokens in `src/environments/`.
+
 ## Docker
 
 Build and run the frontend container from `frontend-playground/`:
@@ -155,13 +203,45 @@ The application stores the following data in `localStorage`:
 Treat tokens as sensitive data. Do not use production credentials while the project
 is being used as a learning playground.
 
+## Public Repository Safety
+
+The repository ignore rules exclude `.env` variants, `.npmrc`, private keys,
+keystores, service-account credentials, local databases, logs, editor settings,
+dependencies, builds, caches, and `.venv/`. The current tracked files and reachable
+Git history were scanned before publication; no matching credentials or private keys
+were found.
+
+Before each future push, review `git status` and never commit generated files or
+secrets. If a real secret is ever committed, removing the file in a later commit is
+not sufficient: revoke the secret and clean the Git history before publishing.
+
+## Publish On GitHub
+
+This checkout already uses
+`https://github.com/natthapong-playground/natthapong-front-playground.git` as its
+`origin`. Confirm the intended commit exists, then publish the current branch with:
+
+```bash
+git status
+git log --oneline -1
+git push -u origin develop
+```
+
+Pushing code and making a repository public are separate actions. In GitHub, open
+**Settings**, then **General**, then **Danger Zone**, and use **Change repository
+visibility** if the repository is still private. Choose a license before inviting
+reuse; without a license, public visibility does not grant permission to copy or
+modify the code.
+
 ## Current Limitations
 
 - A separate backend is required and its source is not part of this repository.
 - Production API replacement is not configured yet.
 - Nginx does not yet provide a fallback for Angular client-side routes.
-- Some generated component tests are shallow or out of date; coverage is limited.
+- Most unit tests are construction-level checks; behavior coverage remains limited.
 - Google Fonts, Material Icons, and flag images depend on external CDNs.
+- `npm audit` reports one transitive, development-only Angular CLI advisory chain;
+  npm currently offers only a breaking CLI downgrade, so it is not force-applied.
 
 ## Documentation
 
