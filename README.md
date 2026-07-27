@@ -1,62 +1,83 @@
 # Natthapong Frontend Playground
 
-An Angular 21 dashboard for experimenting with authentication, role-based access,
-API-driven user tools, and an interactive world clock. The project is a work in
-progress and currently expects a separate backend API.
+[![Angular 21](https://img.shields.io/badge/Angular-21-DD0031?logo=angular)](frontend-playground/package.json)
+[![TypeScript 5.9](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](frontend-playground/package.json)
+[![Status: learning project](https://img.shields.io/badge/status-learning_project-F59E0B)](#project-status)
 
-## Features
+An Angular dashboard for exploring secure authentication, role-aware interfaces,
+audit logs, and an interactive world clock.
 
-- Account registration and sign-in with JWT access and refresh tokens
-- Automatic token refresh and protected, lazy-loaded routes
-- User profile details and role-aware navigation
-- SuperAdmin-only audit-log filtering, paging, and request statistics
-- Interactive world map with country search and click-to-add clocks
-- Live country clocks synchronized with the backend every 60 seconds
-- Browser-persisted country selections and world-clock display preferences
-- Angular Material UI with responsive authentication and dashboard screens
+## Highlights
 
-## Technology
+- Explore a searchable world map and keep a personalized list of live clocks.
+- Register, sign in, and move through guarded routes with automatic JWT refresh.
+- Inspect filtered API activity from a `SuperAdmin`-only audit dashboard.
+- Switch account and audit pages between persisted ocean and white themes.
+- Keep selected countries and world-clock preferences between browser sessions.
+- Run a responsive Angular Material interface on desktop and mobile.
+- Start on Windows without globally installing Node.js, npm, or Angular CLI.
 
-| Area | Technology |
-| --- | --- |
-| Framework | Angular 21 standalone components |
-| Language | TypeScript 5.9 |
-| UI | Angular Material 21 and Angular CDK |
-| State | Angular signals and computed signals |
-| Async data | Angular HttpClient and RxJS 7 |
-| Forms | Angular reactive forms and template-driven filters |
-| Tests | Vitest through Angular's unit-test builder |
-| Container | Node 22 build stage and Nginx runtime |
+## Overview
 
-## Repository Layout
+Natthapong Frontend Playground is the browser client for the
+[Natthapong Backend Playground](https://github.com/natthapong-playground/natthapong-back-playground).
+It combines an account dashboard with a backend-synchronized world clock to
+demonstrate a practical Angular application built with standalone components,
+signals, lazy routes, RxJS, and Angular Material.
 
-```text
-.
-|-- frontend-playground/     Angular application and container definition
-|   |-- public/              Static images and world map GeoJSON
-|   `-- src/
-|       |-- app/core/        Models, guards, interceptor, and API services
-|       |-- app/features/    Authentication and dashboard pages
-|       `-- environments/    API environment settings
-|-- docs/                    Living technical and plain-English documentation
-|-- DETAILS.md               Short developer command reference
-`-- README.md                Project entry point
+The project is designed for learning and experimentation. It is not a hosted
+service, and the companion API must be running locally for authentication,
+profile, audit-log, country, and clock features to work.
+
+### Author
+
+Created and maintained by
+[Natthapong Playground](https://github.com/natthapong-playground).
+
+## Usage
+
+After starting both projects, open <http://localhost:4200/> and:
+
+1. Create an account or sign in.
+2. Open **World Clock**, search for a country, or select one on the map.
+3. Add countries to the clock list and customize the visible panels.
+4. Sign in as a `SuperAdmin` to filter and page through backend audit logs.
+
+The main application routes are:
+
+| Route | Purpose | Access |
+| --- | --- | --- |
+| `/login` | Sign in | Signed-out users |
+| `/register` | Create an account | Signed-out users |
+| `/profile` | View account details and role | Authenticated users |
+| `/world-clock` | Search countries and manage live clocks | Authenticated users |
+| `/audit-logs` | Inspect backend request activity | `SuperAdmin` |
+
+## Installation
+
+The frontend expects the companion backend at
+`http://127.0.0.1:8000/api/v1`. [Install and start the backend](https://github.com/natthapong-playground/natthapong-back-playground#installation)
+before using the application.
+
+### Windows (recommended)
+
+Requirements: Windows 10 or 11, PowerShell 5.1 or newer, and an internet
+connection for the first setup.
+
+```bat
+git clone https://github.com/natthapong-playground/natthapong-front-playground.git
+cd natthapong-front-playground
+setup.bat
+start.bat
 ```
 
-See [`docs/structures.txt`](docs/structures.txt) for the complete application map,
-[`docs/files.txt`](docs/files.txt) for file responsibilities, and
-[`docs/methods.txt`](docs/methods.txt) for routes and behavior.
+Open <http://localhost:4200/>. The scripts download a verified Node.js 22.23.1
+toolchain and install locked dependencies inside the repository. Nothing is
+installed globally. `start.bat` reruns setup when the lock file changes.
 
-## Prerequisites
+### Linux and macOS
 
-- [Node.js 22](https://nodejs.org/)
-- npm 11 (the project records `npm@11.11.0`)
-- A compatible backend available at `http://127.0.0.1:8000/api/v1`
-
-The backend is not included in this repository. It must implement the API contract
-listed below for all screens to work.
-
-## Local Setup
+Install Node.js 22.12 or newer and npm 11, then run:
 
 ```bash
 git clone https://github.com/natthapong-playground/natthapong-front-playground.git
@@ -65,113 +86,84 @@ npm ci
 npm start
 ```
 
-Open `http://localhost:4200/`. The Angular development server reloads when source
-files change.
+The Angular CLI is already a project dependency; a global `ng` installation is
+not required.
 
-The Angular CLI is installed as a project dependency, so a global `ng` installation
-is not required when using the npm scripts.
+## Configuration
 
-## Available Commands
+The development API URL is defined in
+[`frontend-playground/src/environments/environment.ts`](frontend-playground/src/environments/environment.ts).
+Production builds replace it with `environment.prod.ts`. Change the selected
+file's settings when the backend is served from another origin.
 
-Run these commands from `frontend-playground/`:
+The checked-in Angular development and production environments already contain
+this project's public Google OAuth Web Client ID, so the Google buttons render on
+login and registration. Google Cloud must authorize `http://localhost:4200` and
+the eventual production frontend origin. The backend private `.env` must contain
+the same value as `GOOGLE_CLIENT_ID`.
+
+Forks should replace `googleClientId` with their own OAuth Web Client ID and add
+their origins in Google Cloud. No Google client secret belongs in the frontend or
+is required for this flow.
+
+Angular environment files are compiled into browser-readable JavaScript. Never
+store passwords, private keys, or API secrets in them.
+
+## Development
+
+Run npm commands from `frontend-playground/`:
 
 | Command | Purpose |
 | --- | --- |
 | `npm start` | Start the development server on port 4200 |
 | `npm run build` | Create an optimized build in `dist/` |
 | `npm run watch` | Rebuild continuously with development settings |
-| `npm test` | Run the Vitest unit-test suite |
+| `npm test` | Run unit tests with Vitest |
 
-Linting and end-to-end testing are not currently configured.
-
-## Application Routes
-
-| Route | Access | Purpose |
-| --- | --- | --- |
-| `/login` | Signed-out users | Sign in |
-| `/register` | Signed-out users | Create an account and sign in |
-| `/profile` | Authenticated users | View account and role information |
-| `/world-clock` | Authenticated users | Use the interactive world clock |
-| `/audit-logs` | SuperAdmin only | Inspect filtered backend request logs |
-
-The root URL and unknown routes redirect to `/profile`. Route guards then send
-unauthenticated visitors to `/login`.
-
-## Backend API
-
-The frontend currently uses these endpoints below the configured API base URL:
-
-| Method | Endpoint | Used for |
-| --- | --- | --- |
-| `POST` | `/login` | Form-encoded authentication |
-| `POST` | `/refresh-token` | Access and refresh token rotation |
-| `POST` | `/logout` | Session revocation |
-| `POST` | `/users/register` | Account creation |
-| `GET` | `/users/myprofile` | Current user details |
-| `GET` | `/audit-logs` | Filtered and paged audit records |
-| `GET` | `/countries` | Country search |
-| `GET` | `/countries/{code}` | Country details |
-| `GET` | `/clock?code=TH,GB` | Synchronized clock snapshot |
-
-Authenticated requests receive an `Authorization: Bearer <token>` header. The map
-itself is loaded from the local `public/world.geojson` asset.
-
-## Configuration
-
-Development API configuration is in
-`frontend-playground/src/environments/environment.ts`:
-
-```ts
-apiUrl: 'http://127.0.0.1:8000/api/v1'
-```
-
-Before deploying, configure a production API URL and add an Angular production file
-replacement or another runtime configuration strategy. The current `angular.json`
-does not replace `environment.ts`, so production builds still use the local URL.
-
-## Docker
-
-Build and run the frontend container from `frontend-playground/`:
+Linting and end-to-end testing are not currently configured. A container image
+can be built from `frontend-playground/` with:
 
 ```bash
 docker build -t natthapong-frontend .
 docker run --rm -p 8080:80 natthapong-frontend
 ```
 
-Open `http://localhost:8080/`.
+See [`DETAILS.md`](DETAILS.md) for a compact command reference.
 
-The current image uses stock Nginx configuration. Directly refreshing a client-side
-route such as `/profile` may return a 404 until an SPA fallback configuration is
-added. No Docker Compose file is currently included.
+## Architecture
 
-## Browser Storage
+```text
+frontend-playground/src/app/
+|-- core/       Models, route guards, HTTP interceptor, and API services
+`-- features/   Authentication, profile, audit-log, and world-clock screens
+```
 
-The application stores the following data in `localStorage`:
+The application uses JWT access and refresh tokens, adds bearer credentials
+through an HTTP interceptor, and lazy-loads guarded feature routes. Country
+selections and display preferences are stored in `localStorage`; the map data is
+served from `public/world.geojson`.
 
-- `access_token` and `refresh_token` for the authenticated session
-- `world-clock.codes.v1` for selected country codes
-- `world-clock.showSearch` and `world-clock.showGrid` for display preferences
+For deeper implementation details, see:
 
-Treat tokens as sensitive data. Do not use production credentials while the project
-is being used as a learning playground.
+- [`docs/structures.txt`](docs/structures.txt) for the application map
+- [`docs/files.txt`](docs/files.txt) for file responsibilities
+- [`docs/methods.txt`](docs/methods.txt) for routes, services, and behavior
 
-## Current Limitations
+## Project Status
 
-- A separate backend is required and its source is not part of this repository.
-- Production API replacement is not configured yet.
-- Nginx does not yet provide a fallback for Angular client-side routes.
-- Some generated component tests are shallow or out of date; coverage is limited.
-- Google Fonts, Material Icons, and flag images depend on external CDNs.
+This is a work-in-progress learning project, not a production-ready application.
+The current build still uses the local development API URL, the stock Nginx
+image does not provide an Angular route fallback, and browser-stored tokens
+require stronger protection for production use.
 
-## Documentation
+## Feedback and Contributing
 
-Documentation is maintained alongside code:
+Feedback and pull requests are welcome. Public issue creation is currently
+restricted by the repository settings, so propose fixes through a
+[pull request](https://github.com/natthapong-playground/natthapong-front-playground/pulls).
+Keep the living files under [`docs/`](docs/) synchronized with behavior changes.
 
-- [`docs/README.txt`](docs/README.txt): how to use the living documentation
-- [`docs/structures.txt`](docs/structures.txt): frontend tree and route ownership
-- [`docs/files.txt`](docs/files.txt): responsibility of each tracked frontend file
-- [`docs/methods.txt`](docs/methods.txt): important methods, signals, routes, and APIs
-- [`docs/logs.txt`](docs/logs.txt): newest-first documentation changelog
+## License
 
-When changing application behavior, update the matching files under `docs/` in the
-same commit, following [`docs/CLAUDE.md`](docs/CLAUDE.md).
+The project's original code and documentation are available under the
+[MIT License](LICENSE).

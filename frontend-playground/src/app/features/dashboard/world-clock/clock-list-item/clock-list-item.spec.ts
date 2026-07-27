@@ -12,6 +12,15 @@ describe('ClockListItem', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(ClockListItem);
+    fixture.componentRef.setInput('country', {
+      code: 'TH',
+      name: 'Thailand',
+      timezone: 'Asia/Bangkok',
+      utcOffsetMinutes: 420,
+      utcOffsetLabel: 'UTC+07:00',
+      localTime: '12:00:00',
+    });
+    fixture.componentRef.setInput('now', new Date('2026-07-24T12:00:00Z'));
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

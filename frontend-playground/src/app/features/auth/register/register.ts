@@ -17,6 +17,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { AuthService } from '../../../core/services/auth.service';
+import { UiThemeService } from '../../../core/services/ui-theme.service';
+import { GoogleAuthButton } from '../google-auth-button/google-auth-button';
 
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
   const password = group.get('password')?.value;
@@ -73,7 +75,8 @@ const STRENGTH_LEVELS: Record<number, PasswordStrength> = {
     MatIconModule,
     MatCardModule,
     MatProgressSpinnerModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    GoogleAuthButton
   ],
   templateUrl: './register.html',
   styleUrl: './register.css'
@@ -82,6 +85,7 @@ export class Register {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  protected readonly uiTheme = inject(UiThemeService);
 
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);

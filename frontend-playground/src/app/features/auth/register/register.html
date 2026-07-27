@@ -1,4 +1,14 @@
-<div class="auth-shell">
+<div class="auth-shell" [class.light-theme]="uiTheme.isLight()">
+  <button
+    mat-icon-button
+    type="button"
+    class="theme-toggle"
+    (click)="uiTheme.toggle()"
+    [attr.aria-label]="uiTheme.isLight() ? 'Use ocean theme' : 'Use white theme'"
+    [title]="uiTheme.isLight() ? 'Use ocean theme' : 'Use white theme'"
+  >
+    <mat-icon>{{ uiTheme.isLight() ? 'dark_mode' : 'light_mode' }}</mat-icon>
+  </button>
   <mat-card class="auth-card" appearance="outlined">
     <mat-card-header class="auth-header">
       <div mat-card-avatar class="brand-avatar">
@@ -94,6 +104,7 @@
           }
         </button>
       </form>
+      <app-google-auth-button text="signup_with" />
     </mat-card-content>
 
     <mat-card-actions class="auth-footer">

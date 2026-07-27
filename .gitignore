@@ -5,9 +5,18 @@
 .env
 .env.*
 !.env.example
+.npmrc
+!.npmrc.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+credentials*.json
+service-account*.json
 
 # Virtual Environments
-venv
 venv/
 .venv/
 env/
@@ -61,9 +70,3 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 *.db
-
-# =========================
-# PlainText Information
-# =========================
-*.txt
-!docs/*.txt

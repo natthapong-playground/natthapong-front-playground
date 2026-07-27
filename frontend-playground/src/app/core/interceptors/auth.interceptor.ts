@@ -5,7 +5,7 @@ import { AuthService } from '../services/auth.service';
 
 // Endpoints whose own 401 means "bad credentials / dead refresh token", not
 // "access token expired" — so we must NOT try to refresh-and-retry them.
-const AUTH_ENDPOINTS = ['/login', '/refresh-token', '/users/register'];
+const AUTH_ENDPOINTS = ['/login', '/google-login', '/refresh-token', '/users/register'];
 
 function isAuthEndpoint(url: string): boolean {
   return AUTH_ENDPOINTS.some(path => url.includes(path));

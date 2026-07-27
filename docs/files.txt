@@ -1,9 +1,28 @@
 # Frontend File Responsibilities
 
 SCOPE
-  TECH:  Entries cover every tracked file under frontend-playground/ as of
-         2026-07-23. Generated and installed directories are excluded.
-  PLAIN: Every frontend file committed to Git is explained below.
+  TECH:  Entries cover root runtime scripts and every tracked file under
+         frontend-playground/ as of 2026-07-24. Generated and installed directories
+         are excluded.
+  PLAIN: Every frontend file and Windows run helper committed to Git is explained
+         below.
+
+== Repository runtime helpers ==
+
+setup.bat
+  TECH:  Detects Windows architecture; downloads pinned Node.js 22.23.1 into .venv/;
+         verifies the official SHA-256; installs npm 11.11.0 and its cache locally;
+         scopes npm, temporary, home, and node-gyp paths locally; runs npm ci against
+         frontend-playground/package-lock.json; and records the lockfile fingerprint.
+  PLAIN: Sets up all Windows tools and packages inside this project without a global
+         installation.
+
+start.bat
+  TECH:  Selects the architecture-specific .venv Node toolchain, runs setup.bat when
+         tools or Angular CLI packages are absent or the lockfile fingerprint changed,
+         scopes writable tool paths locally, and forwards optional arguments to npm
+         start from frontend-playground/.
+  PLAIN: Starts the development website and automatically runs setup when needed.
 
 == Project configuration ==
 
@@ -33,12 +52,13 @@ frontend-playground/README.md
 
 frontend-playground/angular.json
   TECH:  Configures Angular build, development server, public assets, global styles,
-         size budgets, source maps, and the unit-test builder.
+         size budgets, source maps, production environment replacement, and the
+         unit-test builder.
   PLAIN: Tells Angular how to build, run, and test the application.
 
 frontend-playground/package.json
-  TECH:  Declares npm scripts, Angular 21 runtime packages, Material/CDK, RxJS,
-         TypeScript, Prettier, jsdom, and Vitest dependencies.
+  TECH:  Declares npm scripts, patched Angular 21 runtime/build packages,
+         Material/CDK, RxJS, TypeScript, Prettier, jsdom, and Vitest dependencies.
   PLAIN: Lists the tools and libraries required by the frontend.
 
 frontend-playground/package-lock.json
@@ -58,10 +78,6 @@ frontend-playground/tsconfig.spec.json
   PLAIN: Controls how test files are compiled.
 
 == Public assets ==
-
-frontend-playground/public/backgrounds/auth-bg.gif
-  TECH:  Animated image used as the authentication-screen background.
-  PLAIN: Provides the visual background on sign-in and registration pages.
 
 frontend-playground/public/favicon.ico
   TECH:  Legacy favicon asset copied unchanged into build output but not currently
@@ -97,14 +113,16 @@ frontend-playground/src/styles.css
   PLAIN: Applies shared visual rules across every screen.
 
 frontend-playground/src/environments/environment.ts
-  TECH:  Exports production=false and the development API base URL
-         http://127.0.0.1:8000/api/v1.
-  PLAIN: Points local frontend requests at the development backend.
+  TECH:  Exports production=false, the development API base URL, and the public
+         configured googleClientId used by Google Identity Services.
+  PLAIN: Points local requests at the backend and enables the Google login and
+         registration buttons.
 
 frontend-playground/src/environments/environment.prod.ts
-  TECH:  Exports production=true but no active apiUrl; angular.json currently has no
-         file replacement that selects this file.
-  PLAIN: Is a production placeholder and is not yet wired into builds.
+  TECH:  Exports production=true, the default local API URL, and the configured
+         public googleClientId; angular.json selects it for production builds.
+  PLAIN: Enables Google authentication in optimized builds and holds the API setting
+         that must be changed when deploying away from the local backend.
 
 == Application shell ==
 
@@ -121,9 +139,9 @@ frontend-playground/src/app/app.css
   PLAIN: Is available for styles that belong only to the app shell.
 
 frontend-playground/src/app/app.spec.ts
-  TECH:  Contains generated root-component unit tests; its heading assertion does
-         not match the current router-only template.
-  PLAIN: Is an early test file that needs updating before it reliably tests the app.
+  TECH:  Provides an empty test router and verifies App construction plus its
+         router-outlet shell.
+  PLAIN: Checks that the application starts with a place for routed pages to appear.
 
 frontend-playground/src/app/app.config.ts
   TECH:  Registers browser error listeners, Router providers, HttpClient, and the
@@ -144,7 +162,8 @@ frontend-playground/src/app/core/guards/auth.guard.ts
 
 frontend-playground/src/app/core/interceptors/auth.interceptor.ts
   TECH:  Adds bearer tokens, refreshes once after recoverable 401 responses, shares
-         refresh work through AuthService, retries, and logs out on failure.
+         refresh work through AuthService, retries, and treats Google login as an
+         authentication endpoint whose 401 must not start token refresh.
   PLAIN: Keeps authenticated requests working when an access token expires.
 
 frontend-playground/src/app/core/models/audit-log.model.ts
@@ -170,8 +189,8 @@ frontend-playground/src/app/core/services/audit.service.ts
   PLAIN: Loads audit records using the filters selected by a SuperAdmin.
 
 frontend-playground/src/app/core/services/auth.service.ts
-  TECH:  Owns JWT state, login, refresh sharing, logout/revocation, registration,
-         role decoding, and localStorage token persistence.
+  TECH:  Owns JWT state, password/Google login, refresh sharing, logout/revocation,
+         registration, role decoding, and localStorage token persistence.
   PLAIN: Manages the user's signed-in session from account creation through logout.
 
 frontend-playground/src/app/core/services/clock.service.ts
@@ -189,63 +208,104 @@ frontend-playground/src/app/core/services/selection-store.service.ts
          and removals under world-clock.codes.v1 in localStorage.
   PLAIN: Remembers the user's selected clocks between page reloads.
 
+frontend-playground/src/app/core/services/ui-theme.service.ts
+  TECH:  Exposes ocean/light theme signals, defaults safely to ocean, toggles the
+         current value, and persists it under ui.theme.v1 in localStorage.
+  PLAIN: Keeps the chosen blue or white appearance consistent between page visits.
+
+frontend-playground/src/app/core/services/ui-theme.service.spec.ts
+  TECH:  Verifies the ocean default, stored light-theme restoration, toggle updates,
+         and localStorage persistence while cleaning browser state between tests.
+  PLAIN: Checks that the appearance switch starts correctly and remembers changes.
+
 frontend-playground/src/app/core/services/user.service.ts
   TECH:  GETs /users/myprofile and returns Observable<User>.
   PLAIN: Loads the signed-in user's profile details.
 
 == Authentication feature ==
 
+frontend-playground/src/app/features/auth/google-auth-button/google-auth-button.ts
+  TECH:  Declares the reusable GoogleAuthButton, dynamically loads Google Identity
+         Services once, renders the official responsive button, exchanges its ID
+         token through AuthService, ignores callbacks after destruction, supports
+         script-load retry, hides when unconfigured, and routes success to profile.
+  PLAIN: Lets users choose their own Google account to sign in or register.
+
+frontend-playground/src/app/features/auth/google-auth-button/google-auth-button.html
+  TECH:  Renders the OR divider, Google button host, progress state, and accessible
+         authentication/load error feedback with a retry action when applicable.
+  PLAIN: Shows the second account option and explains when it cannot be used.
+
+frontend-playground/src/app/features/auth/google-auth-button/google-auth-button.css
+  TECH:  Styles the divider, responsive GIS host, progress row, and error container.
+  PLAIN: Keeps the Google option aligned and readable on desktop and mobile.
+
+frontend-playground/src/app/features/auth/google-auth-button/google-auth-button.spec.ts
+  TECH:  Mocks Google Identity Services, AuthService, and Router to verify hidden
+         unconfigured UI, button rendering and credential exchange, and rejection of
+         callbacks that arrive after component destruction.
+  PLAIN: Checks that Google sign-in appears only when enabled, works when chosen, and
+         cannot act after the user leaves the screen.
+
 frontend-playground/src/app/features/auth/login/login.ts
   TECH:  Implements the Login standalone component, reactive validation, password
-         visibility, loading/error signals, AuthService login, and profile routing.
+         visibility, loading/error signals, AuthService login, profile routing, and
+         composition of the shared Google option; injects UiThemeService for display.
   PLAIN: Powers the sign-in form and explains invalid input or server failures.
 
 frontend-playground/src/app/features/auth/login/login.html
   TECH:  Renders the branded login card, email/password controls, validation,
-         loading state, errors, and registration link.
+         loading state, errors, Google sign-in option, registration link, and an
+         accessible ocean/light theme toggle.
   PLAIN: Is the sign-in screen users see and interact with.
 
 frontend-playground/src/app/features/auth/login/login.css
-  TECH:  Styles the responsive login layout, card, controls, and feedback states.
-  PLAIN: Makes the sign-in screen readable and responsive.
+  TECH:  Styles responsive ocean and white login layouts, layered map-toned gradients,
+         an animated coordinate grid and glow, card, controls, and feedback states.
+  PLAIN: Gives sign-in a blue map-inspired default or clean white appearance while
+         keeping the form readable and respecting reduced-motion preferences.
 
 frontend-playground/src/app/features/auth/login/login.spec.ts
-  TECH:  Contains the generated Login component construction test.
-  PLAIN: Provides a starting point for sign-in tests but not full behavior coverage.
+  TECH:  Provides HttpClient and an empty router, then tests Login construction.
+  PLAIN: Checks that the sign-in screen can start with its required services.
 
 frontend-playground/src/app/features/auth/register/register.ts
   TECH:  Implements registration validation, password matching and strength,
-         visibility/loading/error signals, auto-login, and profile navigation.
+         visibility/loading/error signals, auto-login, profile navigation, and
+         composition of the shared Google option; injects UiThemeService for display.
   PLAIN: Powers account creation and helps users choose and confirm a password.
 
 frontend-playground/src/app/features/auth/register/register.html
   TECH:  Renders registration fields, validation and strength feedback, submit state,
-         server errors, and the login link.
+         server errors, Google sign-up option, login link, and an accessible theme
+         toggle.
   PLAIN: Is the account-creation screen users see and interact with.
 
 frontend-playground/src/app/features/auth/register/register.css
-  TECH:  Styles the responsive registration card, password meter, and form feedback.
-  PLAIN: Makes the registration screen clear and usable.
+  TECH:  Styles responsive ocean and white registration layouts with matching
+         map-toned CSS effects, cards, password meter, and form feedback.
+  PLAIN: Gives registration the same switchable blue or white appearance as sign-in.
 
 frontend-playground/src/app/features/auth/register/register.spec.ts
-  TECH:  Contains the generated Register component construction test.
-  PLAIN: Provides a starting point for registration tests but limited coverage.
+  TECH:  Provides HttpClient and an empty router, then tests Register construction.
+  PLAIN: Checks that the registration screen can start with its required services.
 
 == Profile feature ==
 
 frontend-playground/src/app/features/dashboard/profile/profile.ts
   TECH:  Loads the current User, models loading/error/loaded states, derives role
-         display data, and handles logout, audit-log, and world-clock navigation.
+         display data, handles navigation/logout, and injects UiThemeService.
   PLAIN: Powers the account summary and buttons available for the user's role.
 
 frontend-playground/src/app/features/dashboard/profile/profile.html
   TECH:  Renders the toolbar, profile identity, status, timestamps, role details,
-         errors, loading state, and conditional SuperAdmin action.
+         errors, loading state, conditional SuperAdmin action, and theme toggle.
   PLAIN: Shows the signed-in user their account information and available tools.
 
 frontend-playground/src/app/features/dashboard/profile/profile.css
-  TECH:  Styles the profile toolbar, cards, avatar, metadata, actions, and breakpoints.
-  PLAIN: Organizes the profile page for desktop and smaller screens.
+  TECH:  Styles ocean and white profile shells, toolbar, translucent high-contrast
+         cards, avatar, metadata, actions, decorative grid, and responsive breakpoints.
+  PLAIN: Keeps profile details readable on a softer glass card in either appearance.
 
 frontend-playground/src/app/features/dashboard/profile/profile.spec.ts
   TECH:  Contains the generated Profile component construction test.
@@ -255,18 +315,19 @@ frontend-playground/src/app/features/dashboard/profile/profile.spec.ts
 
 frontend-playground/src/app/features/dashboard/audit-logs/audit-logs.ts
   TECH:  Implements query signals, page state, page-local status statistics, Material
-         table data, API loading, filtering, paging, status classes, and navigation.
+         table data, API loading, filtering, paging, status classes, navigation, and
+         UiThemeService access.
   PLAIN: Powers the SuperAdmin screen for finding and reviewing backend activity.
 
 frontend-playground/src/app/features/dashboard/audit-logs/audit-logs.html
   TECH:  Renders the toolbar, filters, statistics, audit table, loading/error state,
-         and previous/next controls.
+         previous/next controls, and accessible ocean/light theme toggle.
   PLAIN: Displays searchable request history and a summary of loaded results.
 
 frontend-playground/src/app/features/dashboard/audit-logs/audit-logs.css
-  TECH:  Styles audit filters, stat cards, responsive table, HTTP method chips, status
-         families, paging, and feedback states.
-  PLAIN: Makes dense audit information easier to scan.
+  TECH:  Styles ocean and white audit shells, filters, stat cards, responsive table,
+         HTTP method chips, status families, paging, and feedback states.
+  PLAIN: Makes dense audit information easy to scan in either appearance.
 
 frontend-playground/src/app/features/dashboard/audit-logs/audit-logs.spec.ts
   TECH:  Contains the generated AuditLogs component construction test.
@@ -347,8 +408,9 @@ frontend-playground/src/app/features/dashboard/world-clock/clock-list-item/clock
   PLAIN: Makes each saved country's information easy to scan.
 
 frontend-playground/src/app/features/dashboard/world-clock/clock-list-item/clock-list-item.spec.ts
-  TECH:  Contains the generated ClockListItem component construction test.
-  PLAIN: Provides a starting point for clock-row tests but limited coverage.
+  TECH:  Supplies required Country and Date inputs and tests ClockListItem
+         construction.
+  PLAIN: Checks that one clock row can start with realistic country and time data.
 
 == World map and hover details ==
 
@@ -402,6 +464,6 @@ frontend-playground/src/app/features/dashboard/world-clock/footer/footer.css
   PLAIN: Keeps update information visible without distracting from the map.
 
 frontend-playground/src/app/features/dashboard/world-clock/footer/footer.spec.ts
-  TECH:  Contains a stale generated test that imports Footer although the component
-         class is named WorldClockFooter.
-  PLAIN: Is an outdated test file that must be corrected before the suite is reliable.
+  TECH:  Imports WorldClockFooter and contains its standalone component construction
+         test.
+  PLAIN: Checks that the world-clock update footer can be created successfully.

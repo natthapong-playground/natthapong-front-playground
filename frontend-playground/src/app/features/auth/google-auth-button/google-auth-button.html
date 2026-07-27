@@ -1,0 +1,30 @@
+@if (configured) {
+  <div class="auth-divider" aria-hidden="true">
+    <span>or</span>
+  </div>
+
+  <div class="google-auth-option">
+    <div
+      #buttonHost
+      class="google-button-host"
+      [class.hidden]="preparing() || authenticating()"
+    ></div>
+
+    @if (preparing() || authenticating()) {
+      <div class="google-progress" role="status">
+        <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
+        <span>{{ authenticating() ? 'Signing in with Google...' : 'Loading Google...' }}</span>
+      </div>
+    }
+
+    @if (error(); as message) {
+      <div class="google-error" role="alert">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ message }}</span>
+        @if (retryable()) {
+          <button mat-button type="button" (click)="retry()">Retry</button>
+        }
+      </div>
+    }
+  </div>
+}
