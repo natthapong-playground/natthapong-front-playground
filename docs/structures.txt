@@ -37,9 +37,9 @@ frontend-playground/                              - Angular application root
     |-- main.ts                                  - Standalone bootstrap
     |-- material-theme.scss                      - Angular Material theme
     |-- styles.css                               - Global styles
-    |-- environments/                            - API build settings
-    |   |-- environment.ts                       - Active local API URL
-    |   `-- environment.prod.ts                  - Unwired production placeholder
+    |-- environments/                            - API and public OAuth settings
+    |   |-- environment.ts                       - Active local API/OAuth config
+    |   `-- environment.prod.ts                  - Production API/OAuth config
     `-- app/                                     - Angular application code
         |-- app.ts                               - Root component
         |-- app.html                             - Root router outlet
@@ -66,6 +66,11 @@ frontend-playground/                              - Angular application root
         |       `-- user.service.ts              - Profile API client
         `-- features/                            - User-facing screens
             |-- auth/                            - Signed-out screens
+            |   |-- google-auth-button/          - Shared Google account option
+            |   |   |-- google-auth-button.ts    - GIS loading and authentication
+            |   |   |-- google-auth-button.html  - Google option and feedback
+            |   |   |-- google-auth-button.css   - Divider/button feedback styles
+            |   |   `-- google-auth-button.spec.ts - Google auth lifecycle tests
             |   |-- login/                       - Sign-in feature
             |   |   |-- login.ts                 - Login component logic
             |   |   |-- login.html               - Login template
@@ -137,9 +142,10 @@ CORE AREA
          it.
 
 AUTH FEATURES
-  TECH:  src/app/features/auth contains standalone reactive-form pages for login and
-         registration; guestGuard prevents authenticated users reopening them.
-  PLAIN: Signed-out users can sign in or create an account here.
+  TECH:  src/app/features/auth contains standalone reactive-form pages plus a shared
+         Google Identity Services button; guestGuard prevents authenticated users
+         reopening them.
+  PLAIN: Signed-out users can sign in or create an account with a password or Google.
 
 DASHBOARD FEATURES
   TECH:  src/app/features/dashboard contains authenticated profile, SuperAdmin audit

@@ -52,7 +52,8 @@ frontend-playground/README.md
 
 frontend-playground/angular.json
   TECH:  Configures Angular build, development server, public assets, global styles,
-         size budgets, source maps, and the unit-test builder.
+         size budgets, source maps, production environment replacement, and the
+         unit-test builder.
   PLAIN: Tells Angular how to build, run, and test the application.
 
 frontend-playground/package.json
@@ -116,14 +117,16 @@ frontend-playground/src/styles.css
   PLAIN: Applies shared visual rules across every screen.
 
 frontend-playground/src/environments/environment.ts
-  TECH:  Exports production=false and the development API base URL
-         http://127.0.0.1:8000/api/v1.
-  PLAIN: Points local frontend requests at the development backend.
+  TECH:  Exports production=false, the development API base URL, and the public
+         configured googleClientId used by Google Identity Services.
+  PLAIN: Points local requests at the backend and enables the Google login and
+         registration buttons.
 
 frontend-playground/src/environments/environment.prod.ts
-  TECH:  Exports production=true but no active apiUrl; angular.json currently has no
-         file replacement that selects this file.
-  PLAIN: Is a production placeholder and is not yet wired into builds.
+  TECH:  Exports production=true, the default local API URL, and the configured
+         public googleClientId; angular.json selects it for production builds.
+  PLAIN: Enables Google authentication in optimized builds and holds the API setting
+         that must be changed when deploying away from the local backend.
 
 == Application shell ==
 
@@ -163,7 +166,8 @@ frontend-playground/src/app/core/guards/auth.guard.ts
 
 frontend-playground/src/app/core/interceptors/auth.interceptor.ts
   TECH:  Adds bearer tokens, refreshes once after recoverable 401 responses, shares
-         refresh work through AuthService, retries, and logs out on failure.
+         refresh work through AuthService, retries, and treats Google login as an
+         authentication endpoint whose 401 must not start token refresh.
   PLAIN: Keeps authenticated requests working when an access token expires.
 
 frontend-playground/src/app/core/models/audit-log.model.ts
@@ -189,8 +193,8 @@ frontend-playground/src/app/core/services/audit.service.ts
   PLAIN: Loads audit records using the filters selected by a SuperAdmin.
 
 frontend-playground/src/app/core/services/auth.service.ts
-  TECH:  Owns JWT state, login, refresh sharing, logout/revocation, registration,
-         role decoding, and localStorage token persistence.
+  TECH:  Owns JWT state, password/Google login, refresh sharing, logout/revocation,
+         registration, role decoding, and localStorage token persistence.
   PLAIN: Manages the user's signed-in session from account creation through logout.
 
 frontend-playground/src/app/core/services/clock.service.ts
@@ -214,14 +218,38 @@ frontend-playground/src/app/core/services/user.service.ts
 
 == Authentication feature ==
 
+frontend-playground/src/app/features/auth/google-auth-button/google-auth-button.ts
+  TECH:  Declares the reusable GoogleAuthButton, dynamically loads Google Identity
+         Services once, renders the official responsive button, exchanges its ID
+         token through AuthService, ignores callbacks after destruction, supports
+         script-load retry, hides when unconfigured, and routes success to profile.
+  PLAIN: Lets users choose their own Google account to sign in or register.
+
+frontend-playground/src/app/features/auth/google-auth-button/google-auth-button.html
+  TECH:  Renders the OR divider, Google button host, progress state, and accessible
+         authentication/load error feedback with a retry action when applicable.
+  PLAIN: Shows the second account option and explains when it cannot be used.
+
+frontend-playground/src/app/features/auth/google-auth-button/google-auth-button.css
+  TECH:  Styles the divider, responsive GIS host, progress row, and error container.
+  PLAIN: Keeps the Google option aligned and readable on desktop and mobile.
+
+frontend-playground/src/app/features/auth/google-auth-button/google-auth-button.spec.ts
+  TECH:  Mocks Google Identity Services, AuthService, and Router to verify hidden
+         unconfigured UI, button rendering and credential exchange, and rejection of
+         callbacks that arrive after component destruction.
+  PLAIN: Checks that Google sign-in appears only when enabled, works when chosen, and
+         cannot act after the user leaves the screen.
+
 frontend-playground/src/app/features/auth/login/login.ts
   TECH:  Implements the Login standalone component, reactive validation, password
-         visibility, loading/error signals, AuthService login, and profile routing.
+         visibility, loading/error signals, AuthService login, profile routing, and
+         composition of the shared Google option.
   PLAIN: Powers the sign-in form and explains invalid input or server failures.
 
 frontend-playground/src/app/features/auth/login/login.html
   TECH:  Renders the branded login card, email/password controls, validation,
-         loading state, errors, and registration link.
+         loading state, errors, Google sign-in option, and registration link.
   PLAIN: Is the sign-in screen users see and interact with.
 
 frontend-playground/src/app/features/auth/login/login.css
@@ -234,12 +262,13 @@ frontend-playground/src/app/features/auth/login/login.spec.ts
 
 frontend-playground/src/app/features/auth/register/register.ts
   TECH:  Implements registration validation, password matching and strength,
-         visibility/loading/error signals, auto-login, and profile navigation.
+         visibility/loading/error signals, auto-login, profile navigation, and
+         composition of the shared Google option.
   PLAIN: Powers account creation and helps users choose and confirm a password.
 
 frontend-playground/src/app/features/auth/register/register.html
   TECH:  Renders registration fields, validation and strength feedback, submit state,
-         server errors, and the login link.
+         server errors, Google sign-up option, and the login link.
   PLAIN: Is the account-creation screen users see and interact with.
 
 frontend-playground/src/app/features/auth/register/register.css

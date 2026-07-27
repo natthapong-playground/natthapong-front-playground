@@ -1,5 +1,19 @@
 # Documentation Changelog
 
+2026-07-27 - Add Google login and registration alongside local accounts
+  TECH:  Added a reusable Google Identity Services button to both auth pages, a
+         public googleClientId environment setting, and AuthService /google-login
+         exchange using the existing JWT persistence flow. The auth interceptor now
+         treats Google login as a credential endpoint. Empty configuration hides the
+         optional choice, failed GIS loads can be retried, late callbacks are ignored,
+         and production builds select their own environment file. Focused tests cover
+         configuration, credential exchange, and destroyed-component callbacks.
+         Button sizing works on desktop and mobile without adding a frontend package.
+         Both Angular environments now contain the configured public OAuth Web Client
+         ID, enabling the Google button at runtime.
+  PLAIN: Users can now sign in or create an account with their own Google account,
+         while the original email-and-password buttons remain available.
+
 2026-07-24 - Prepare isolated Windows setup and public repository hygiene
   TECH:  Added setup.bat and start.bat with a SHA-256-verified Node.js 22.23.1 and
          npm 11.11.0 toolchain contained by .venv/; expanded secret and credential

@@ -60,6 +60,12 @@ export class AuthService {
             .pipe(tap(res => this.saveTokens(res)));
     }
 
+    loginWithGoogle(credential: string): Observable<TokenResponse> {
+        return this.http
+            .post<TokenResponse>(`${environment.apiUrl}/google-login`, { credential })
+            .pipe(tap(res => this.saveTokens(res)));
+    }
+
     /**
      * Swap the stored refresh token for a fresh access+refresh pair. Concurrent
      * callers share one round-trip; the backend rotates (revokes) the old refresh

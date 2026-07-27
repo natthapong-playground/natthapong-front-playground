@@ -17,6 +17,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { AuthService } from '../../../core/services/auth.service';
+import { GoogleAuthButton } from '../google-auth-button/google-auth-button';
 
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
   const password = group.get('password')?.value;
@@ -73,7 +74,8 @@ const STRENGTH_LEVELS: Record<number, PasswordStrength> = {
     MatIconModule,
     MatCardModule,
     MatProgressSpinnerModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    GoogleAuthButton
   ],
   templateUrl: './register.html',
   styleUrl: './register.css'

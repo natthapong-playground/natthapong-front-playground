@@ -74,8 +74,8 @@ roleGuard(...roles: Role[]): CanActivateFn  [core/guards/auth.guard.ts]
   PLAIN: Restricts sensitive pages to approved account roles.
 
 isAuthEndpoint(url: string): boolean  [core/interceptors/auth.interceptor.ts]
-  TECH:  Tests the URL against /login, /refresh-token, and /users/register so their
-         401 responses do not trigger recursive refresh attempts.
+  TECH:  Tests the URL against /login, /google-login, /refresh-token, and
+         /users/register so their 401 responses do not trigger refresh attempts.
   PLAIN: Recognizes requests where a 401 means the credentials themselves failed.
 
 authInterceptor: HttpInterceptorFn  [core/interceptors/auth.interceptor.ts]
@@ -109,6 +109,12 @@ AuthService.login(email: string, password: string): Observable<TokenResponse>
   TECH:  POSTs URL-encoded username/password to /login and persists the returned
          access and refresh token pair through saveTokens().
   PLAIN: Signs in with email and password and remembers the new session.
+
+AuthService.loginWithGoogle(credential: string): Observable<TokenResponse>
+  TECH:  POSTs `{credential}` to /google-login and persists the returned access and
+         refresh token pair through saveTokens().
+  PLAIN: Exchanges Google's proof for the same application session used by password
+         login.
 
 AuthService.refreshToken(): Observable<TokenResponse>
   TECH:  POSTs the stored refresh token to /refresh-token, saves rotated tokens, and
@@ -254,6 +260,57 @@ ClockService.applySnapshot(snap: ClockSnapshot): void
   PLAIN: Establishes the reference point used to advance all clocks locally.
 
 == Login and registration ==
+
+loadGoogleIdentity(): Promise<GoogleAccounts>
+  [features/auth/google-auth-button/google-auth-button.ts]
+  TECH:  Returns an already-loaded window.google API or one module-shared promise
+         that injects https://accounts.google.com/gsi/client asynchronously; failed
+         loads remove the script and reset the promise so retry can load it again.
+  PLAIN: Loads Google's official account chooser once, even across both auth pages.
+
+GoogleAuthButton.text: InputSignal<'signin_with' | 'signup_with'>
+  TECH:  Selects the official GIS button wording; defaults to signin_with.
+  PLAIN: Gives login and registration the appropriate Google button label.
+
+GoogleAuthButton.configured: boolean
+  TECH:  True only when the selected Angular environment has a non-empty public
+         googleClientId; the template renders no Google UI when false.
+  PLAIN: Hides the optional Google choice until the project owner enables it.
+
+GoogleAuthButton.preparing: WritableSignal<boolean>
+  TECH:  Tracks GIS script and button initialization.
+  PLAIN: Shows progress while the Google option is becoming ready.
+
+GoogleAuthButton.authenticating: WritableSignal<boolean>
+  TECH:  Tracks the backend credential exchange and prevents duplicate callbacks.
+  PLAIN: Shows that the chosen Google account is being signed in.
+
+GoogleAuthButton.error: WritableSignal<string | null>
+  TECH:  Holds script-load and mapped backend error feedback.
+  PLAIN: Explains why Google sign-in is unavailable or failed.
+
+GoogleAuthButton.retryable: WritableSignal<boolean>
+  TECH:  True only after GIS script initialization fails, enabling the Retry action.
+  PLAIN: Lets users retry a temporary Google button loading problem.
+
+GoogleAuthButton.constructor()
+  TECH:  Schedules renderButton() through afterNextRender for browser DOM safety.
+  PLAIN: Prepares the Google option after Angular displays its host element.
+
+GoogleAuthButton.renderButton(): Promise<void>
+  TECH:  Private method requiring environment.googleClientId, loading GIS, calling
+         initialize with the credential callback, and rendering a host-width button.
+  PLAIN: Displays Google's official button when the project owner configured it.
+
+GoogleAuthButton.retry(): void
+  TECH:  Clears load feedback, restores preparing state, and invokes renderButton().
+  PLAIN: Tries to load Google's account button again without reloading the page.
+
+GoogleAuthButton.authenticate(credential: string): void
+  TECH:  Private duplicate-guarded call to AuthService.loginWithGoogle, scoped with
+         takeUntilDestroyed; ignores destroyed components, routes success to /profile,
+         and maps failure while leaving the Google button available for another try.
+  PLAIN: Completes sign-in after the user chooses a Google account.
 
 Login.form: FormGroup  [features/auth/login/login.ts]
   TECH:  Non-null reactive form with string email and password controls and required,
@@ -670,7 +727,7 @@ API base URL
   PLAIN: The application currently expects a backend running locally on port 8000.
 
 Backend endpoints
-  TECH:  POST /login, /refresh-token, /logout, /users/register; GET
+  TECH:  POST /login, /google-login, /refresh-token, /logout, /users/register; GET
          /users/myprofile, /audit-logs, /countries, /countries/{code}, and /clock.
   PLAIN: These backend operations support accounts, profiles, audits, countries, and
          synchronized clocks.

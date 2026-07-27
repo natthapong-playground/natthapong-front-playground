@@ -15,6 +15,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuthService } from '../../../core/services/auth.service';
+import { GoogleAuthButton } from '../google-auth-button/google-auth-button';
 
 const VALIDATION_MESSAGES: Record<string, Record<string, string>> = {
   email: {
@@ -46,7 +47,8 @@ const FALLBACK_ERROR = 'Sign-in failed. Please try again.';
     MatButtonModule,
     MatIconModule,
     MatCardModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    GoogleAuthButton
   ],
   templateUrl: './login.html',
   styleUrl: './login.css'
