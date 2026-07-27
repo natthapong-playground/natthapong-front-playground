@@ -1,5 +1,21 @@
 # Documentation Changelog
 
+2026-07-27 - Add a persisted ocean and white theme to non-map pages
+  TECH:  Added UiThemeService with ocean/light signals and ui.theme.v1 persistence;
+         connected accessible toggle buttons and responsive theme styling to login,
+         registration, profile, and audit logs. Ocean remains the default and all
+         world-map components and styles remain unchanged. Unit coverage verifies
+         default, restored, and toggled values.
+  PLAIN: Users can switch account and audit pages between the blue ocean look and a
+         clean white look, and the browser remembers their choice. The map is unchanged.
+
+2026-07-27 - Replace the authentication GIF with map-toned CSS effects
+  TECH:  Removed public/backgrounds/auth-bg.gif and rebuilt both auth backgrounds
+         from navy/azure/cyan gradients matching WorldMap, a masked animated grid,
+         drifting glow rings, translucent card treatment, and reduced-motion rules.
+  PLAIN: Login and registration now share a lightweight animated blue background
+         inspired by the world map, without downloading a large GIF.
+
 2026-07-27 - Add Google login and registration alongside local accounts
   TECH:  Added a reusable Google Identity Services button to both auth pages, a
          public googleClientId environment setting, and AuthService /google-login

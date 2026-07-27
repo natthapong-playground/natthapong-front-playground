@@ -79,10 +79,6 @@ frontend-playground/tsconfig.spec.json
 
 == Public assets ==
 
-frontend-playground/public/backgrounds/auth-bg.gif
-  TECH:  Animated image used as the authentication-screen background.
-  PLAIN: Provides the visual background on sign-in and registration pages.
-
 frontend-playground/public/favicon.ico
   TECH:  Legacy favicon asset copied unchanged into build output but not currently
          linked by src/index.html.
@@ -212,6 +208,16 @@ frontend-playground/src/app/core/services/selection-store.service.ts
          and removals under world-clock.codes.v1 in localStorage.
   PLAIN: Remembers the user's selected clocks between page reloads.
 
+frontend-playground/src/app/core/services/ui-theme.service.ts
+  TECH:  Exposes ocean/light theme signals, defaults safely to ocean, toggles the
+         current value, and persists it under ui.theme.v1 in localStorage.
+  PLAIN: Keeps the chosen blue or white appearance consistent between page visits.
+
+frontend-playground/src/app/core/services/ui-theme.service.spec.ts
+  TECH:  Verifies the ocean default, stored light-theme restoration, toggle updates,
+         and localStorage persistence while cleaning browser state between tests.
+  PLAIN: Checks that the appearance switch starts correctly and remembers changes.
+
 frontend-playground/src/app/core/services/user.service.ts
   TECH:  GETs /users/myprofile and returns Observable<User>.
   PLAIN: Loads the signed-in user's profile details.
@@ -244,17 +250,20 @@ frontend-playground/src/app/features/auth/google-auth-button/google-auth-button.
 frontend-playground/src/app/features/auth/login/login.ts
   TECH:  Implements the Login standalone component, reactive validation, password
          visibility, loading/error signals, AuthService login, profile routing, and
-         composition of the shared Google option.
+         composition of the shared Google option; injects UiThemeService for display.
   PLAIN: Powers the sign-in form and explains invalid input or server failures.
 
 frontend-playground/src/app/features/auth/login/login.html
   TECH:  Renders the branded login card, email/password controls, validation,
-         loading state, errors, Google sign-in option, and registration link.
+         loading state, errors, Google sign-in option, registration link, and an
+         accessible ocean/light theme toggle.
   PLAIN: Is the sign-in screen users see and interact with.
 
 frontend-playground/src/app/features/auth/login/login.css
-  TECH:  Styles the responsive login layout, card, controls, and feedback states.
-  PLAIN: Makes the sign-in screen readable and responsive.
+  TECH:  Styles responsive ocean and white login layouts, layered map-toned gradients,
+         an animated coordinate grid and glow, card, controls, and feedback states.
+  PLAIN: Gives sign-in a blue map-inspired default or clean white appearance while
+         keeping the form readable and respecting reduced-motion preferences.
 
 frontend-playground/src/app/features/auth/login/login.spec.ts
   TECH:  Provides HttpClient and an empty router, then tests Login construction.
@@ -263,17 +272,19 @@ frontend-playground/src/app/features/auth/login/login.spec.ts
 frontend-playground/src/app/features/auth/register/register.ts
   TECH:  Implements registration validation, password matching and strength,
          visibility/loading/error signals, auto-login, profile navigation, and
-         composition of the shared Google option.
+         composition of the shared Google option; injects UiThemeService for display.
   PLAIN: Powers account creation and helps users choose and confirm a password.
 
 frontend-playground/src/app/features/auth/register/register.html
   TECH:  Renders registration fields, validation and strength feedback, submit state,
-         server errors, Google sign-up option, and the login link.
+         server errors, Google sign-up option, login link, and an accessible theme
+         toggle.
   PLAIN: Is the account-creation screen users see and interact with.
 
 frontend-playground/src/app/features/auth/register/register.css
-  TECH:  Styles the responsive registration card, password meter, and form feedback.
-  PLAIN: Makes the registration screen clear and usable.
+  TECH:  Styles responsive ocean and white registration layouts with matching
+         map-toned CSS effects, cards, password meter, and form feedback.
+  PLAIN: Gives registration the same switchable blue or white appearance as sign-in.
 
 frontend-playground/src/app/features/auth/register/register.spec.ts
   TECH:  Provides HttpClient and an empty router, then tests Register construction.
@@ -283,17 +294,18 @@ frontend-playground/src/app/features/auth/register/register.spec.ts
 
 frontend-playground/src/app/features/dashboard/profile/profile.ts
   TECH:  Loads the current User, models loading/error/loaded states, derives role
-         display data, and handles logout, audit-log, and world-clock navigation.
+         display data, handles navigation/logout, and injects UiThemeService.
   PLAIN: Powers the account summary and buttons available for the user's role.
 
 frontend-playground/src/app/features/dashboard/profile/profile.html
   TECH:  Renders the toolbar, profile identity, status, timestamps, role details,
-         errors, loading state, and conditional SuperAdmin action.
+         errors, loading state, conditional SuperAdmin action, and theme toggle.
   PLAIN: Shows the signed-in user their account information and available tools.
 
 frontend-playground/src/app/features/dashboard/profile/profile.css
-  TECH:  Styles the profile toolbar, cards, avatar, metadata, actions, and breakpoints.
-  PLAIN: Organizes the profile page for desktop and smaller screens.
+  TECH:  Styles ocean and white profile shells, toolbar, cards, avatar, metadata,
+         actions, decorative grid, and responsive breakpoints.
+  PLAIN: Organizes the profile page for desktop and mobile in either appearance.
 
 frontend-playground/src/app/features/dashboard/profile/profile.spec.ts
   TECH:  Contains the generated Profile component construction test.
@@ -303,18 +315,19 @@ frontend-playground/src/app/features/dashboard/profile/profile.spec.ts
 
 frontend-playground/src/app/features/dashboard/audit-logs/audit-logs.ts
   TECH:  Implements query signals, page state, page-local status statistics, Material
-         table data, API loading, filtering, paging, status classes, and navigation.
+         table data, API loading, filtering, paging, status classes, navigation, and
+         UiThemeService access.
   PLAIN: Powers the SuperAdmin screen for finding and reviewing backend activity.
 
 frontend-playground/src/app/features/dashboard/audit-logs/audit-logs.html
   TECH:  Renders the toolbar, filters, statistics, audit table, loading/error state,
-         and previous/next controls.
+         previous/next controls, and accessible ocean/light theme toggle.
   PLAIN: Displays searchable request history and a summary of loaded results.
 
 frontend-playground/src/app/features/dashboard/audit-logs/audit-logs.css
-  TECH:  Styles audit filters, stat cards, responsive table, HTTP method chips, status
-         families, paging, and feedback states.
-  PLAIN: Makes dense audit information easier to scan.
+  TECH:  Styles ocean and white audit shells, filters, stat cards, responsive table,
+         HTTP method chips, status families, paging, and feedback states.
+  PLAIN: Makes dense audit information easy to scan in either appearance.
 
 frontend-playground/src/app/features/dashboard/audit-logs/audit-logs.spec.ts
   TECH:  Contains the generated AuditLogs component construction test.

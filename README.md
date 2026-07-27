@@ -12,7 +12,8 @@ audit logs, and an interactive world clock.
 - Explore a searchable world map and keep a personalized list of live clocks.
 - Register, sign in, and move through guarded routes with automatic JWT refresh.
 - Inspect filtered API activity from a `SuperAdmin`-only audit dashboard.
-- Keep selected countries and display preferences between browser sessions.
+- Switch account and audit pages between persisted ocean and white themes.
+- Keep selected countries and world-clock preferences between browser sessions.
 - Run a responsive Angular Material interface on desktop and mobile.
 - Start on Windows without globally installing Node.js, npm, or Angular CLI.
 

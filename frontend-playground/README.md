@@ -49,7 +49,7 @@ No Google client secret is used or stored in the browser.
 - `src/app/core/`: models, guards, authentication interceptor, and API services
 - `src/app/features/auth/`: email/password and Google login/registration screens
 - `src/app/features/dashboard/`: profile, audit logs, and world clock
-- `public/`: favicon, logo, authentication background, and world map data
+- `public/`: favicon, logo, and world map data
 - `src/environments/`: API URL and public Google OAuth client ID configuration
 
 See [`../docs/structures.txt`](../docs/structures.txt) for the complete map.

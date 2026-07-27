@@ -15,6 +15,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuthService } from '../../../core/services/auth.service';
+import { UiThemeService } from '../../../core/services/ui-theme.service';
 import { GoogleAuthButton } from '../google-auth-button/google-auth-button';
 
 const VALIDATION_MESSAGES: Record<string, Record<string, string>> = {
@@ -57,6 +58,7 @@ export class Login {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  protected readonly uiTheme = inject(UiThemeService);
 
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);

@@ -1,14 +1,23 @@
-<div class="logs-shell">
-  <mat-toolbar color="primary" class="topbar">
+<div class="logs-shell" [class.light-theme]="uiTheme.isLight()">
+  <mat-toolbar class="topbar">
     <button mat-icon-button (click)="onBack()" aria-label="Back to profile">
       <mat-icon>arrow_back</mat-icon>
     </button>
     <mat-icon class="brand-icon">receipt_long</mat-icon>
     <span class="brand-text">Audit Logs</span>
     <span class="spacer"></span>
+    <button
+      mat-icon-button
+      class="theme-toggle"
+      (click)="uiTheme.toggle()"
+      [attr.aria-label]="uiTheme.isLight() ? 'Use ocean theme' : 'Use white theme'"
+      [title]="uiTheme.isLight() ? 'Use ocean theme' : 'Use white theme'"
+    >
+      <mat-icon>{{ uiTheme.isLight() ? 'dark_mode' : 'light_mode' }}</mat-icon>
+    </button>
     <button mat-stroked-button (click)="onLogout()">
       <mat-icon>logout</mat-icon>
-      <span>Sign out</span>
+      <span class="action-label">Sign out</span>
     </button>
   </mat-toolbar>
 

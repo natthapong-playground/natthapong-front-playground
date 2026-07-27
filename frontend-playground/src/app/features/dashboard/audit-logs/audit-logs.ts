@@ -15,6 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { AuditService } from '../../../core/services/audit.service';
+import { UiThemeService } from '../../../core/services/ui-theme.service';
 import { AuditLog, AuditLogQuery } from '../../../core/models/audit-log.model';
 
 
@@ -54,6 +55,7 @@ export class AuditLogs implements OnInit {
   private auditService = inject(AuditService);
   private auth = inject(AuthService);
   private router = inject(Router);
+  protected readonly uiTheme = inject(UiThemeService);
 
   protected readonly methods = HTTP_METHODS;
   protected readonly columns = [

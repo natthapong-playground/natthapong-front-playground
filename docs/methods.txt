@@ -178,6 +178,26 @@ CountryApiService.getClock(codes: string[]): Observable<ClockSnapshot>
   TECH:  Joins codes with commas into the `code` query parameter and GETs /clock.
   PLAIN: Retrieves one synchronized time snapshot for all selected countries.
 
+== UiThemeService ==
+
+UiThemeService.theme: Signal<UiTheme>
+  TECH:  Read-only view of the ocean/light value initialized by load().
+  PLAIN: Supplies the current appearance to participating pages.
+
+UiThemeService.isLight: Signal<boolean>
+  TECH:  Computed signal that is true only when theme equals `light`.
+  PLAIN: Lets templates apply the white appearance and label the switch correctly.
+
+UiThemeService.toggle(): void
+  TECH:  Alternates between ocean and light, updates the signal, and best-effort writes
+         ui.theme.v1 to localStorage without losing the in-session choice on failure.
+  PLAIN: Switches the participating pages between blue and white and remembers it.
+
+UiThemeService.load(): UiTheme
+  TECH:  Private best-effort localStorage reader that accepts only `light`; every
+         missing, invalid, or unavailable value resolves to `ocean`.
+  PLAIN: Restores the white choice safely or starts with the blue appearance.
+
 == SelectionStore ==
 
 SelectionStore.codes: Signal<string[]>
@@ -733,7 +753,7 @@ Backend endpoints
          synchronized clocks.
 
 Browser storage keys
-  TECH:  access_token, refresh_token, world-clock.codes.v1,
+  TECH:  access_token, refresh_token, ui.theme.v1, world-clock.codes.v1,
          world-clock.showSearch, and world-clock.showGrid.
-  PLAIN: The browser remembers the session, selected countries, and two display
-         preferences.
+  PLAIN: The browser remembers the session, page appearance, selected countries, and
+         two world-clock display preferences.

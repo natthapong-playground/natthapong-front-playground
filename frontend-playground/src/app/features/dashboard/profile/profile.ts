@@ -12,6 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { UserService } from '../../../core/services/user.service';
+import { UiThemeService } from '../../../core/services/ui-theme.service';
 import { Role, User } from '../../../core/models/user.model';
 
 
@@ -59,6 +60,7 @@ export class Profile implements OnInit {
   private userService = inject(UserService);
   private auth = inject(AuthService);
   private router = inject(Router);
+  protected readonly uiTheme = inject(UiThemeService);
 
   protected readonly state = signal<ViewState>({ kind: 'loading' });
 

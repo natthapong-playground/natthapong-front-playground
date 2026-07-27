@@ -27,8 +27,6 @@ frontend-playground/                              - Angular application root
 |-- tsconfig.app.json                            - Browser compilation settings
 |-- tsconfig.spec.json                           - Test compilation settings
 |-- public/                                      - Assets copied as-is
-|   |-- backgrounds/                             - Authentication visuals
-|   |   `-- auth-bg.gif                          - Animated auth background
 |   |-- favicon.ico                              - Unlinked legacy icon
 |   |-- logo_n.png                               - Active browser favicon
 |   `-- world.geojson                            - Country geometry data
@@ -63,6 +61,8 @@ frontend-playground/                              - Angular application root
         |       |-- clock.service.ts             - Shared clock synchronization
         |       |-- country-api.service.ts       - Country/clock API client
         |       |-- selection-store.service.ts   - Saved country selections
+        |       |-- ui-theme.service.ts          - Persisted page color theme
+        |       |-- ui-theme.service.spec.ts     - Theme persistence unit tests
         |       `-- user.service.ts              - Profile API client
         `-- features/                            - User-facing screens
             |-- auth/                            - Signed-out screens
@@ -160,9 +160,9 @@ WORLD CLOCK COMPOSITION
          details, and synchronization status into one screen.
 
 PUBLIC ASSETS
-  TECH:  public/ is copied unchanged by Angular. world.geojson drives SVG paths;
-         the remaining files provide branding and authentication visuals.
-  PLAIN: These are the images and map data downloaded directly by the browser.
+  TECH:  public/ is copied unchanged by Angular. world.geojson drives SVG paths and
+         the remaining files provide browser branding.
+  PLAIN: These are the logo files and map data downloaded directly by the browser.
 
 ROUTE STRUCTURE
   TECH:  /login and /register use guestGuard; /profile and /world-clock use
