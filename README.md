@@ -92,7 +92,18 @@ not required.
 
 The development API URL is defined in
 [`frontend-playground/src/environments/environment.ts`](frontend-playground/src/environments/environment.ts).
-Change it when the backend is served from another origin.
+Production builds replace it with `environment.prod.ts`. Change the selected
+file's settings when the backend is served from another origin.
+
+The checked-in Angular development and production environments already contain
+this project's public Google OAuth Web Client ID, so the Google buttons render on
+login and registration. Google Cloud must authorize `http://localhost:4200` and
+the eventual production frontend origin. The backend private `.env` must contain
+the same value as `GOOGLE_CLIENT_ID`.
+
+Forks should replace `googleClientId` with their own OAuth Web Client ID and add
+their origins in Google Cloud. No Google client secret belongs in the frontend or
+is required for this flow.
 
 Angular environment files are compiled into browser-readable JavaScript. Never
 store passwords, private keys, or API secrets in them.

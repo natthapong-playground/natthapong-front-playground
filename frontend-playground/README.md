@@ -36,12 +36,20 @@ Open `http://localhost:4200/`. The development backend is expected at
 
 Lint and end-to-end scripts are not configured.
 
+## Google Authentication
+
+The login and registration pages include Google Identity Services buttons. The
+public OAuth Web Client ID is configured in `src/environments/environment.ts` and
+`environment.prod.ts`; the backend private `.env` must use the same value as
+`GOOGLE_CLIENT_ID`. Authorize `http://localhost:4200` in Google Cloud for local use.
+No Google client secret is used or stored in the browser.
+
 ## Source Areas
 
 - `src/app/core/`: models, guards, authentication interceptor, and API services
-- `src/app/features/auth/`: login and registration screens
+- `src/app/features/auth/`: email/password and Google login/registration screens
 - `src/app/features/dashboard/`: profile, audit logs, and world clock
 - `public/`: favicon, logo, authentication background, and world map data
-- `src/environments/`: API configuration
+- `src/environments/`: API URL and public Google OAuth client ID configuration
 
 See [`../docs/structures.txt`](../docs/structures.txt) for the complete map.
