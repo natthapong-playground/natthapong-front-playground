@@ -303,9 +303,9 @@ frontend-playground/src/app/features/dashboard/profile/profile.html
   PLAIN: Shows the signed-in user their account information and available tools.
 
 frontend-playground/src/app/features/dashboard/profile/profile.css
-  TECH:  Styles ocean and white profile shells, toolbar, cards, avatar, metadata,
-         actions, decorative grid, and responsive breakpoints.
-  PLAIN: Organizes the profile page for desktop and mobile in either appearance.
+  TECH:  Styles ocean and white profile shells, toolbar, translucent high-contrast
+         cards, avatar, metadata, actions, decorative grid, and responsive breakpoints.
+  PLAIN: Keeps profile details readable on a softer glass card in either appearance.
 
 frontend-playground/src/app/features/dashboard/profile/profile.spec.ts
   TECH:  Contains the generated Profile component construction test.

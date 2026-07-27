@@ -1,5 +1,12 @@
 # Documentation Changelog
 
+2026-07-27 - Soften the profile card and improve text contrast
+  TECH:  Replaced the nearly opaque profile surface with translucent navy glass in
+         ocean mode and translucent white in light mode, with explicit Material
+         on-surface colors for readable titles, details, and secondary text.
+  PLAIN: The profile card is less bright, reveals more of the background, and keeps
+         the account name easy to read in both appearances.
+
 2026-07-27 - Add a persisted ocean and white theme to non-map pages
   TECH:  Added UiThemeService with ocean/light signals and ui.theme.v1 persistence;
          connected accessible toggle buttons and responsive theme styling to login,
